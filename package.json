@@ -16,13 +16,15 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --no-watchman",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@adaptivekind/graph-schema": "^0.1.9",
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
-    "@types/jest": "^30.0.0"
+    "@types/jest": "^30.0.0",
+    "husky": "^9.1.7"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",
