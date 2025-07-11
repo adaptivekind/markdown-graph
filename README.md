@@ -9,10 +9,7 @@ Generate a graph from a markdown repository. This TypeScript library parses mark
 
 - 📝 Parse markdown files with frontmatter support
 - 🔗 Generate graph structures from markdown repositories
-- 🏷️ Extract tags and metadata from YAML frontmatter
-- ⚡ Support for both file-based and in-memory repositories
-- 🛡️ Robust error handling for malformed frontmatter
-- 📊 Compatible with `@adaptivekind/graph-schema`
+- 📊 Graph interface from `@adaptivekind/graph-schema`
 
 ## Installation
 
@@ -73,10 +70,6 @@ author: John Doe
 Your markdown content here.
 ```
 
-- Frontmatter is parsed using [gray-matter](https://github.com/jonschlinkert/gray-matter)
-- Malformed frontmatter is handled gracefully with error messages appended to content
-- Caching is disabled to ensure consistent reloading behavior
-
 ## Development
 
 ### Prerequisites
@@ -101,34 +94,6 @@ npm test
 npm run test:watch
 ```
 
-### Project Structure
-
-```
-src/
-├── repository.ts         # Main repository creation logic
-├── base-item.ts         # BaseItem class for individual markdown files
-├── types.ts             # TypeScript type definitions
-├── mardown-message.ts   # Utility for markdown error messages
-└── features/
-    ├── feature-helpers.ts    # Test utilities
-    └── generate-graph.test.ts # Test suite
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass: `npm test`
-6. Submit a pull request
-
 ## License
 
 MIT © [Ian Homer](https://github.com/adaptivekind)
-
-## Links
-
-- [GitHub Repository](https://github.com/adaptivekind/markdown-graph)
-- [Issues](https://github.com/adaptivekind/markdown-graph/issues)
-- [npm Package](https://www.npmjs.com/package/@adaptivekind/markdown-graph)
