@@ -2,15 +2,9 @@ import { graphFrom } from "./feature-helpers";
 import { Graph } from "@adaptivekind/graph-schema";
 
 const foo = `
-# foo
+# Foo
 
 foo content
-`;
-
-const bar = `
-# bar
-
-bar content
 `;
 
 describe("generate graph", () => {
@@ -24,5 +18,6 @@ describe("generate graph", () => {
       foo,
     });
     expect(Object.keys(graph.nodes)).toHaveLength(1);
+    expect(graph.nodes.foo.label).toBe("Foo");
   });
 });

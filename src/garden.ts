@@ -9,6 +9,7 @@ import {
 import { BaseItem } from "./base-item";
 import { BaseGardenRepository } from "./base-garden-repository";
 import { parse } from "./markdown";
+import { linkResolver } from "./link-resolver";
 
 const toRepository = (config: GardenConfig): GardenRepository => {
   if (config.type === "file") {
@@ -31,10 +32,13 @@ export const toConfig = (options: GardenOptions): GardenConfig => {
 
 const loadItemIntoGraph = (graph: Graph, item: Item) => {
   const itemMetaList = parse(item);
-  graph.nodes[item.id] = {
-    label: itemMetaList[0].label,
-  };
   itemMetaList.forEach((itemMeta: ItemMeta) => {
+    const id =
+      item.id + (itemMeta.depth == 1 ? "" : "#" + linkResolver(itemMeta.label));
+    graph.nodes[id] = {
+      label: itemMeta.label,
+    };
+
     itemMeta.links.forEach((target) => {
       graph.links.push({ source: item.id, target: target });
     });

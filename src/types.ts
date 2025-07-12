@@ -9,6 +9,7 @@ export interface ItemMeta {
   label: string;
   hash: string;
   links: Array<string>;
+  depth: number;
 }
 
 export interface ItemReference {
