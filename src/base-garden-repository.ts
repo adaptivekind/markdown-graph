@@ -34,10 +34,10 @@ export class BaseGardenRepository implements GardenRepository {
     };
   }
 
-  loadContentMolecule(itemReference: MoleculeReference) {
-    const id = itemReference.id;
+  loadContentMolecule(reference: MoleculeReference) {
+    const id = reference.id;
     if (id in this.content) {
-      return new BaseItem(itemReference, id, this.content[id]);
+      return new BaseItem(reference, id, this.content[id]);
     }
     throw `Cannot load ${id} since does not exist in ${this.description()}`;
   }

@@ -30,8 +30,8 @@ const loadContentMolecule = (
   repository: GardenRepository,
   filename: string,
 ): ContentMolecule => {
-  const moleculeReference = repository.toMoleculeReference(filename);
-  return repository.loadContentMolecule(moleculeReference);
+  const reference = repository.toMoleculeReference(filename);
+  return repository.loadContentMolecule(reference);
 };
 
 const generateGraph = (

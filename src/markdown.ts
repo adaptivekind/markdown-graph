@@ -158,15 +158,17 @@ const createItemMetaFromSection = (
   };
 };
 
-export const parseContentMolecule = (item: ContentMolecule): ContentAtom[] => {
-  const markdownAst: Parent = unified()
+export const parseContentMolecule = (
+  molecule: ContentMolecule,
+): ContentAtom[] => {
+  const markdownSyntaxTree: Parent = unified()
     .use(remarkWikiLink, {
       hrefTemplate: (permalink: string) => `${permalink}`,
     })
     .use(remarkParse)
-    .parse(item.content);
+    .parse(molecule.content);
 
-  return convertMarkdownToSections(markdownAst).map((section) =>
-    createItemMetaFromSection(item, section),
+  return convertMarkdownToSections(markdownSyntaxTree).map((section) =>
+    createItemMetaFromSection(molecule, section),
   );
 };
