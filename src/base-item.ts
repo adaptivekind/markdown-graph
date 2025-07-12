@@ -1,4 +1,4 @@
-import { Item, ItemReference } from "./types";
+import { ContentItem, ItemReference } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
 import { MarkdownMessage } from "./mardown-message";
 
@@ -24,7 +24,7 @@ const safeMatter = (content: string) => {
   }
 };
 
-export class BaseItem implements Item {
+export class BaseItem implements ContentItem {
   id: string;
   filename: string;
   content: string;
