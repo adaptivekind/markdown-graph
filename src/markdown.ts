@@ -132,10 +132,7 @@ const extractFileNameFromUrl = (url: string) => {
   return fileNameMatch ? fileNameMatch[1] : url;
 };
 
-export const createItemMetaFromSection = (
-  item: Item,
-  section: Section,
-): ItemMeta => {
+const createItemMetaFromSection = (item: Item, section: Section): ItemMeta => {
   const foundLinks = getAllNodesFromSection(section)
     .filter(
       (node) =>
@@ -169,4 +166,4 @@ export const parseMarkdownItemToMetadata = (item: Item): ItemMeta[] => {
   );
 };
 
-export const loadItemFromSource = () => {};
+const loadItemFromSource = () => {};

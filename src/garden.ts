@@ -22,7 +22,7 @@ const defaultConfig: GardenConfig = {
   content: {},
 };
 
-export const toConfig = (options: GardenOptions): GardenConfig => {
+const toConfig = (options: GardenOptions): GardenConfig => {
   return {
     ...defaultConfig,
     ...options,

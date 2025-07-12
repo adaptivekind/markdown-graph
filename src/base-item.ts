@@ -2,7 +2,7 @@ import { Item, ItemReference } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
 import { MarkdownMessage } from "./mardown-message";
 
-export type Matter = GrayMatterFile<string> & {};
+type Matter = GrayMatterFile<string> & {};
 
 const safeMatter = (content: string) => {
   try {

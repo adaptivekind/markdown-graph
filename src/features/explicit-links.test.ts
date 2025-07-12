@@ -13,8 +13,8 @@ const bar = `
 Bar content
 `;
 
-export const toLinkTarget = (link: Link) => link.target;
-export const withSource = (id: string) => (link: Link) => link.source === id;
+const toLinkTarget = (link: Link) => link.target;
+const withSource = (id: string) => (link: Link) => link.source === id;
 
 describe("content with explicit link to existing things", () => {
   it("should have links to existing things", async () => {
