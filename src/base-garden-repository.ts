@@ -1,6 +1,13 @@
-import { GardenRepository, ItemReference } from "./types";
+import { GardenConfig, GardenRepository, ItemReference } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
+
+export const toRepository = (config: GardenConfig): GardenRepository => {
+  if (config.type === "file") {
+    throw Error("File repository not yet implemented");
+  }
+  return new BaseGardenRepository(config.content);
+};
 
 export class BaseGardenRepository implements GardenRepository {
   private content;

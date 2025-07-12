@@ -5,29 +5,11 @@ import {
   Item,
   ItemMeta,
 } from "./types";
-import { BaseGardenRepository } from "./base-garden-repository";
+import { BaseGardenRepository, toRepository } from "./base-garden-repository";
 import { Graph } from "@adaptivekind/graph-schema";
 import { linkResolver } from "./link-resolver";
 import { parseMarkdownItemToMetadata } from "./markdown";
-
-const toRepository = (config: GardenConfig): GardenRepository => {
-  if (config.type === "file") {
-    throw Error("File repository not yet implemented");
-  }
-  return new BaseGardenRepository(config.content);
-};
-
-const defaultConfig: GardenConfig = {
-  type: "file",
-  content: {},
-};
-
-const toConfig = (options: GardenOptions): GardenConfig => {
-  return {
-    ...defaultConfig,
-    ...options,
-  };
-};
+import { toConfig } from "./config";
 
 const loadItemIntoGraph = (graph: Graph, item: Item) => {
   const itemMetaList = parseMarkdownItemToMetadata(item);

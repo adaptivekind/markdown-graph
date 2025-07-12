@@ -165,5 +165,3 @@ export const parseMarkdownItemToMetadata = (item: Item): ItemMeta[] => {
     createItemMetaFromSection(item, section),
   );
 };
-
-const loadItemFromSource = () => {};
