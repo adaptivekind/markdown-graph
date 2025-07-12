@@ -9,7 +9,7 @@ export const toRepository = (config: GardenConfig): GardenRepository => {
   return new BaseGardenRepository(config.content);
 };
 
-export class BaseGardenRepository implements GardenRepository {
+class BaseGardenRepository implements GardenRepository {
   private content;
 
   constructor(content: { [key: string]: string } = {}) {

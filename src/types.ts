@@ -17,11 +17,9 @@ export interface ItemReference {
   hash: string;
 }
 
-export type RepositoryType = "file" | "inmemory";
-
 export type GardenConfig = {
   content: { [id: string]: string };
-  type: RepositoryType;
+  type: "file" | "inmemory";
 };
 
 export type GardenOptions = Partial<GardenConfig>;
