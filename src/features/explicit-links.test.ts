@@ -1,5 +1,5 @@
-import { graphFrom } from "./feature-helpers";
 import { Link } from "@adaptivekind/graph-schema";
+import { graphFrom } from "./feature-helpers";
 
 const foo = `
 # Foo

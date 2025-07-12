@@ -1,11 +1,11 @@
-import { unified } from "unified";
+import { Heading, Link, Literal } from "mdast";
+import { Item, ItemMeta } from "./types";
+import { Node, Parent } from "unist";
+import { linkResolver } from "./link-resolver";
+import remarkParse from "remark-parse";
 import remarkWikiLink from "remark-wiki-link";
 import { toString } from "mdast-util-to-string";
-import { Node, Parent } from "unist";
-import { Content, Item, ItemMeta } from "./types";
-import { Heading, Link, Literal } from "mdast";
-import remarkParse from "remark-parse";
-import { linkResolver } from "./link-resolver";
+import { unified } from "unified";
 
 interface Section {
   children: Node[];

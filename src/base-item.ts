@@ -1,6 +1,6 @@
-import { MarkdownMessage } from "./mardown-message";
 import { Item, ItemReference } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
+import { MarkdownMessage } from "./mardown-message";
 
 export type Matter = GrayMatterFile<string> & {};
 

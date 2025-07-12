@@ -15,16 +15,26 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "eslint": "eslint src --ext .ts",
+    "eslint:fix": "eslint --fix src --ext .ts",
+    "lint": "npm run prettier && npm run eslint",
+    "lint:fix": "npm run prettier:fix && npm run eslint:fix",
+    "prepare": "husky",
+    "prettier": "npx prettier --check .",
+    "prettier:fix": "npx prettier --write .",
     "test": "jest --no-watchman",
-    "test:watch": "jest --watch",
-    "prepare": "husky"
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@adaptivekind/graph-schema": "^0.1.9",
     "@babel/preset-env": "^7.28.0",
     "@babel/preset-typescript": "^7.27.1",
     "@types/jest": "^30.0.0",
-    "husky": "^9.1.7"
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "eslint": "^9.31.0",
+    "eslint-plugin-import": "^2.32.0",
+    "husky": "^9.1.7",
+    "prettier": "^3.6.2"
   },
   "dependencies": {
     "gray-matter": "^4.0.3",

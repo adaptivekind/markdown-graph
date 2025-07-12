@@ -1,4 +1,3 @@
-import { Graph } from "@adaptivekind/graph-schema";
 import {
   GardenConfig,
   GardenOptions,
@@ -6,10 +5,10 @@ import {
   Item,
   ItemMeta,
 } from "./types";
-import { BaseItem } from "./base-item";
 import { BaseGardenRepository } from "./base-garden-repository";
-import { parse } from "./markdown";
+import { Graph } from "@adaptivekind/graph-schema";
 import { linkResolver } from "./link-resolver";
+import { parse } from "./markdown";
 
 const toRepository = (config: GardenConfig): GardenRepository => {
   if (config.type === "file") {
@@ -81,7 +80,7 @@ export const createGarden = (options: GardenOptions) => {
 
   // Process the content if provided
   if (options.content) {
-    for (const [filename, content] of Object.entries(options.content)) {
+    for (const [filename] of Object.entries(options.content)) {
       graph.nodes[filename] = {};
     }
   }

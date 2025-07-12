@@ -1,6 +1,6 @@
+import { GardenRepository, ItemReference } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
-import { Content, GardenRepository, ItemReference } from "./types";
 
 export class BaseGardenRepository implements GardenRepository {
   private content;
