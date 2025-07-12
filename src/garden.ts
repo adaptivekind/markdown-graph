@@ -1,8 +1,8 @@
 import {
+  ContentItem,
   GardenConfig,
   GardenOptions,
   GardenRepository,
-  ContentItem,
   ItemMeta,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
