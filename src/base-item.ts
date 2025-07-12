@@ -1,10 +1,8 @@
-import { MarkdownMessage } from "./mardown-message";
-import { Item, ItemReference, MetaData } from "./types";
+import { ContentMolecule, MoleculeReference } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
+import { MarkdownMessage } from "./mardown-message";
 
-export type Matter = GrayMatterFile<string> & {
-  data: MetaData;
-};
+type Matter = GrayMatterFile<string> & {};
 
 const safeMatter = (content: string) => {
   try {
@@ -26,20 +24,22 @@ const safeMatter = (content: string) => {
   }
 };
 
-export class BaseItem implements Item {
-  name: string;
+export class BaseItem implements ContentMolecule {
+  id: string;
   filename: string;
   content: string;
-  data: MetaData;
   hash: string;
 
-  constructor(itemReference: ItemReference, filename: string, content: string) {
+  constructor(
+    itemReference: MoleculeReference,
+    filename: string,
+    content: string,
+  ) {
     this.filename = filename;
-    this.name = itemReference.name;
+    this.id = itemReference.id;
     this.hash = itemReference.hash;
 
     const itemMatter = safeMatter(content);
     this.content = itemMatter.content;
-    this.data = itemMatter.data;
   }
 }

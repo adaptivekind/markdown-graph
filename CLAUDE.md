@@ -5,10 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Testing
+
 - `npm test` - Run all tests using Jest
 - `npm run test:watch` - Run tests in watch mode
 
 ### TypeScript
+
 - The project uses TypeScript with ES modules and strict mode enabled
 - Root source directory is `./src`
 - Target: ES2020

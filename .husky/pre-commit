@@ -1,1 +1,4 @@
+npx lint-staged
+npm run knip
 npm test
+npm run build
