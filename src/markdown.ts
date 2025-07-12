@@ -1,5 +1,5 @@
 import { Heading, Link, Literal } from "mdast";
-import { Item, ItemMeta } from "./types";
+import { ContentItem, ItemMeta } from "./types";
 import { Node, Parent } from "unist";
 import { linkResolver } from "./link-resolver";
 import remarkParse from "remark-parse";
@@ -132,7 +132,10 @@ const extractFileNameFromUrl = (url: string) => {
   return fileNameMatch ? fileNameMatch[1] : url;
 };
 
-const createItemMetaFromSection = (item: Item, section: Section): ItemMeta => {
+const createItemMetaFromSection = (
+  item: ContentItem,
+  section: Section,
+): ItemMeta => {
   const foundLinks = getAllNodesFromSection(section)
     .filter(
       (node) =>
@@ -153,7 +156,7 @@ const createItemMetaFromSection = (item: Item, section: Section): ItemMeta => {
   };
 };
 
-export const parseMarkdownItemToMetadata = (item: Item): ItemMeta[] => {
+export const parseMarkdownItemToMetadata = (item: ContentItem): ItemMeta[] => {
   const markdownAst: Parent = unified()
     .use(remarkWikiLink, {
       hrefTemplate: (permalink: string) => `${permalink}`,
