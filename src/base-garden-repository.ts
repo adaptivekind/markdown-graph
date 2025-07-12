@@ -34,15 +34,11 @@ export class BaseGardenRepository implements GardenRepository {
     };
   }
 
-  toUri(itemReference: ItemReference) {
-    return itemReference.id;
-  }
-
   loadContentItem(itemReference: ItemReference) {
-    const name = itemReference.id;
-    if (name in this.content) {
-      return new BaseItem(itemReference, name, this.content[name]);
+    const id = itemReference.id;
+    if (id in this.content) {
+      return new BaseItem(itemReference, id, this.content[id]);
     }
-    throw `Cannot load ${name} since does not exist in ${this.description()}`;
+    throw `Cannot load ${id} since does not exist in ${this.description()}`;
   }
 }
