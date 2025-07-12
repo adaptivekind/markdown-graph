@@ -1,4 +1,4 @@
-export interface Item {
+export interface ContentItem {
   id: string;
   filename?: string;
   hash: string;
@@ -28,5 +28,5 @@ export type GardenOptions = Partial<GardenConfig>;
 
 export interface GardenRepository {
   toItemReference: (id: string) => ItemReference;
-  load: (itemReference: ItemReference) => Item;
+  loadContentItem: (itemReference: ItemReference) => ContentItem;
 }

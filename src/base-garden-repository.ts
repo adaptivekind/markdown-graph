@@ -38,7 +38,7 @@ export class BaseGardenRepository implements GardenRepository {
     return itemReference.id;
   }
 
-  load(itemReference: ItemReference) {
+  loadContentItem(itemReference: ItemReference) {
     const name = itemReference.id;
     if (name in this.content) {
       return new BaseItem(itemReference, name, this.content[name]);

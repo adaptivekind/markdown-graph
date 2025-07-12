@@ -2,7 +2,7 @@ import {
   GardenConfig,
   GardenOptions,
   GardenRepository,
-  Item,
+  ContentItem,
   ItemMeta,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
@@ -11,7 +11,7 @@ import { parseMarkdownItemToMetadata } from "./markdown";
 import { toConfig } from "./config";
 import { toRepository } from "./base-garden-repository";
 
-const loadItemIntoGraph = (graph: Graph, item: Item) => {
+const loadItemIntoGraph = (graph: Graph, item: ContentItem) => {
   const itemMetaList = parseMarkdownItemToMetadata(item);
   itemMetaList.forEach((itemMeta: ItemMeta) => {
     const id =
@@ -26,9 +26,12 @@ const loadItemIntoGraph = (graph: Graph, item: Item) => {
   });
 };
 
-const loadItem = (repository: GardenRepository, filename: string): Item => {
+const loadContentItem = (
+  repository: GardenRepository,
+  filename: string,
+): ContentItem => {
   const itemReference = repository.toItemReference(filename);
-  return repository.load(itemReference);
+  return repository.loadContentItem(itemReference);
 };
 
 const generateGraph = (
@@ -41,7 +44,7 @@ const generateGraph = (
   };
   if (Object.keys(config.content).length > 0) {
     for (const id in config.content) {
-      loadItemIntoGraph(graph, loadItem(repository, `${id}.md`));
+      loadItemIntoGraph(graph, loadContentItem(repository, `${id}.md`));
     }
   }
   return graph;
