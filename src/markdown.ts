@@ -53,7 +53,7 @@ const extractSectionTitle = (section: Section) => {
   return extractTextFromNode(firstHeading, isRegularTextNode);
 };
 
-const convertMarkdownToSections = (markdownRoot: Parent) => {
+const convertMarkdownToSections = (markdownSyntaxTree: Parent) => {
   const sections: Section[] = [
     { children: [], sections: [], depth: 1, title: "title-not-set" },
   ];
@@ -63,7 +63,7 @@ const convertMarkdownToSections = (markdownRoot: Parent) => {
   let shouldSkipNode;
   const nestedSectionStack: Section[] = new Array<Section>(6);
   nestedSectionStack[0] = sections[0];
-  markdownRoot.children.forEach((node) => {
+  markdownSyntaxTree.children.forEach((node) => {
     shouldSkipNode = false;
     if ("depth" in node) {
       if ((node as Heading).depth > 1) {
@@ -134,7 +134,7 @@ const extractFileNameFromUrl = (url: string) => {
   return fileNameMatch ? fileNameMatch[1] : url;
 };
 
-const createItemMetaFromSection = (
+const toContentAtom = (
   item: ContentMolecule,
   section: Section,
 ): ContentAtom => {
@@ -169,6 +169,6 @@ export const parseContentMolecule = (
     .parse(molecule.content);
 
   return convertMarkdownToSections(markdownSyntaxTree).map((section) =>
-    createItemMetaFromSection(molecule, section),
+    toContentAtom(molecule, section),
   );
 };
