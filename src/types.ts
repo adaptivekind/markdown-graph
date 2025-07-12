@@ -1,30 +1,35 @@
 export interface Item {
-  name: string;
+  id: string;
   filename?: string;
   hash: string;
   content: string;
 }
 
+export interface ItemMeta {
+  title: string;
+  hash: string;
+  links: Array<string>;
+}
+
 export interface ItemReference {
-  name: string;
+  id: string;
   hash: string;
 }
 
-export type MetaData = {
-  tags?: string[];
-};
-
 export type RepositoryType = "file" | "inmemory";
 
-export type RepositoryConfig = {
-  content: { [key: string]: string };
+export type GardenConfig = {
+  content: { [id: string]: string };
   type: RepositoryType;
 };
 
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
+export type Content = {
+  body: string;
+};
 
-export type RepositoryOptions = DeepPartial<RepositoryConfig>;
+export type GardenOptions = Partial<GardenConfig>;
+
+export interface GardenRepository {
+  toItemReference: (id: string) => ItemReference;
+  load: (itemReference: ItemReference) => Item;
+}

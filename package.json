@@ -29,6 +29,10 @@
   "dependencies": {
     "gray-matter": "^4.0.3",
     "jest": "^30.0.4",
-    "jest-environment-jsdom": "^30.0.4"
+    "jest-environment-jsdom": "^30.0.4",
+    "mdast-util-to-string": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-wiki-link": "^2.0.1",
+    "unified": "^11.0.5"
   }
 }
