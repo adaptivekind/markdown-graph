@@ -1,4 +1,4 @@
-import { ContentItem, ItemMeta } from "./types";
+import { ContentMolecule, ContentAtom } from "./types";
 import { Heading, Link, Literal } from "mdast";
 import { Node, Parent } from "unist";
 import { linkResolver } from "./link-resolver";
@@ -135,9 +135,9 @@ const extractFileNameFromUrl = (url: string) => {
 };
 
 const createItemMetaFromSection = (
-  item: ContentItem,
+  item: ContentMolecule,
   section: Section,
-): ItemMeta => {
+): ContentAtom => {
   const foundLinks = getAllNodesFromSection(section)
     .filter(
       (node) =>
@@ -158,7 +158,7 @@ const createItemMetaFromSection = (
   };
 };
 
-export const parseMarkdownItemToMetadata = (item: ContentItem): ItemMeta[] => {
+export const parseContentMolecule = (item: ContentMolecule): ContentAtom[] => {
   const markdownAst: Parent = unified()
     .use(remarkWikiLink, {
       hrefTemplate: (permalink: string) => `${permalink}`,

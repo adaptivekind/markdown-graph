@@ -1,4 +1,4 @@
-import { ContentItem, ItemReference } from "./types";
+import { ContentMolecule, MoleculeReference } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
 import { MarkdownMessage } from "./mardown-message";
 
@@ -24,13 +24,17 @@ const safeMatter = (content: string) => {
   }
 };
 
-export class BaseItem implements ContentItem {
+export class BaseItem implements ContentMolecule {
   id: string;
   filename: string;
   content: string;
   hash: string;
 
-  constructor(itemReference: ItemReference, filename: string, content: string) {
+  constructor(
+    itemReference: MoleculeReference,
+    filename: string,
+    content: string,
+  ) {
     this.filename = filename;
     this.id = itemReference.id;
     this.hash = itemReference.hash;

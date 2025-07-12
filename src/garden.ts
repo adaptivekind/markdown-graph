@@ -1,37 +1,37 @@
 import {
-  ContentItem,
+  ContentMolecule,
   GardenConfig,
   GardenOptions,
   GardenRepository,
-  ItemMeta,
+  ContentAtom,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { linkResolver } from "./link-resolver";
-import { parseMarkdownItemToMetadata } from "./markdown";
+import { parseContentMolecule } from "./markdown";
 import { toConfig } from "./config";
 import { toRepository } from "./base-garden-repository";
 
-const loadItemIntoGraph = (graph: Graph, item: ContentItem) => {
-  const itemMetaList = parseMarkdownItemToMetadata(item);
-  itemMetaList.forEach((itemMeta: ItemMeta) => {
+const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
+  const atoms = parseContentMolecule(molecule);
+  atoms.forEach((atom: ContentAtom) => {
     const id =
-      item.id + (itemMeta.depth == 1 ? "" : "#" + linkResolver(itemMeta.label));
+      molecule.id + (atom.depth == 1 ? "" : "#" + linkResolver(atom.label));
     graph.nodes[id] = {
-      label: itemMeta.label,
+      label: atom.label,
     };
 
-    itemMeta.links.forEach((target) => {
-      graph.links.push({ source: item.id, target: target });
+    atom.links.forEach((target) => {
+      graph.links.push({ source: molecule.id, target: target });
     });
   });
 };
 
-const loadContentItem = (
+const loadContentMolecule = (
   repository: GardenRepository,
   filename: string,
-): ContentItem => {
-  const itemReference = repository.toItemReference(filename);
-  return repository.loadContentItem(itemReference);
+): ContentMolecule => {
+  const moleculeReference = repository.toMoleculeReference(filename);
+  return repository.loadContentMolecule(moleculeReference);
 };
 
 const generateGraph = (
@@ -44,7 +44,7 @@ const generateGraph = (
   };
   if (Object.keys(config.content).length > 0) {
     for (const id in config.content) {
-      loadItemIntoGraph(graph, loadContentItem(repository, `${id}.md`));
+      enrichGraph(graph, loadContentMolecule(repository, `${id}.md`));
     }
   }
   return graph;

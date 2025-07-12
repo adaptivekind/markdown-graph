@@ -1,4 +1,4 @@
-import { GardenConfig, GardenRepository, ItemReference } from "./types";
+import { GardenConfig, GardenRepository, MoleculeReference } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
 
@@ -9,7 +9,7 @@ export const toRepository = (config: GardenConfig): GardenRepository => {
   return new BaseGardenRepository(config.content);
 };
 
-class BaseGardenRepository implements GardenRepository {
+export class BaseGardenRepository implements GardenRepository {
   private content;
 
   constructor(content: { [key: string]: string } = {}) {
@@ -26,7 +26,7 @@ class BaseGardenRepository implements GardenRepository {
     return id.toLowerCase();
   }
 
-  toItemReference(id: string) {
+  toMoleculeReference(id: string) {
     const matchName = /([^/]*).md$/.exec(id);
     return {
       id: this.normaliseName(matchName ? matchName[1] : id),
@@ -34,7 +34,7 @@ class BaseGardenRepository implements GardenRepository {
     };
   }
 
-  loadContentItem(itemReference: ItemReference) {
+  loadContentMolecule(itemReference: MoleculeReference) {
     const id = itemReference.id;
     if (id in this.content) {
       return new BaseItem(itemReference, id, this.content[id]);
