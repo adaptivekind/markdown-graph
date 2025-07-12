@@ -14,11 +14,13 @@ interface Section {
   title: string;
 }
 
-const isAngleBracketLink = (node: Node) =>
+// Autolink is like <https://foo.com> see
+// https://daringfireball.net/projects/markdown/syntax#autolink
+const isAutoLink = (node: Node) =>
   node.type === "link" &&
   (node as Link).url === ((node as Parent).children[0] as Literal).value;
 
-const isRegularTextNode = (node: Node) => !!node && !isAngleBracketLink(node);
+const isRegularTextNode = (node: Node) => !!node && !isAutoLink(node);
 
 const extractTextFromNode = (
   node: Node,
