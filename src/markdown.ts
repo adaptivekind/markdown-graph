@@ -133,7 +133,7 @@ export const toItemMeta = (item: Item, section: Section): ItemMeta => {
     );
 
   return {
-    title: section.title,
+    label: section.title,
     hash: item.hash,
     links: explicitLinks,
   };

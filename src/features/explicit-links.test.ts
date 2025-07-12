@@ -1,5 +1,5 @@
 import { graphFrom } from "./feature-helpers";
-import { Graph, Link } from "@adaptivekind/graph-schema";
+import { Link } from "@adaptivekind/graph-schema";
 
 const foo = `
 # Foo
@@ -23,6 +23,8 @@ describe("content with explicit link to existing things", () => {
       bar,
     });
     expect(Object.keys(graph.nodes)).toHaveLength(2);
+    expect(graph.nodes.foo.label).toBe("Foo");
+    expect(graph.nodes.bar.label).toBe("Bar");
     expect(
       graph.links.filter(withSource("foo")).map(toLinkTarget),
     ).toStrictEqual(["bar"]);

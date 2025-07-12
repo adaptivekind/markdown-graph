@@ -6,7 +6,7 @@ export interface Item {
 }
 
 export interface ItemMeta {
-  title: string;
+  label: string;
   hash: string;
   links: Array<string>;
 }

@@ -31,7 +31,9 @@ export const toConfig = (options: GardenOptions): GardenConfig => {
 
 const loadItemIntoGraph = (graph: Graph, item: Item) => {
   const itemMetaList = parse(item);
-  graph.nodes[item.id] = {};
+  graph.nodes[item.id] = {
+    label: itemMetaList[0].label,
+  };
   itemMetaList.forEach((itemMeta: ItemMeta) => {
     itemMeta.links.forEach((target) => {
       graph.links.push({ source: item.id, target: target });
