@@ -1,5 +1,5 @@
-import { Heading, Link, Literal } from "mdast";
 import { ContentItem, ItemMeta } from "./types";
+import { Heading, Link, Literal } from "mdast";
 import { Node, Parent } from "unist";
 import { linkResolver } from "./link-resolver";
 import remarkParse from "remark-parse";
