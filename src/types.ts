@@ -24,10 +24,6 @@ export type GardenConfig = {
   type: RepositoryType;
 };
 
-export type Content = {
-  body: string;
-};
-
 export type GardenOptions = Partial<GardenConfig>;
 
 export interface GardenRepository {

@@ -5,11 +5,11 @@ import {
   Item,
   ItemMeta,
 } from "./types";
-import { BaseGardenRepository, toRepository } from "./base-garden-repository";
 import { Graph } from "@adaptivekind/graph-schema";
 import { linkResolver } from "./link-resolver";
 import { parseMarkdownItemToMetadata } from "./markdown";
 import { toConfig } from "./config";
+import { toRepository } from "./base-garden-repository";
 
 const loadItemIntoGraph = (graph: Graph, item: Item) => {
   const itemMetaList = parseMarkdownItemToMetadata(item);
@@ -47,25 +47,9 @@ const generateGraph = (
   return graph;
 };
 
-// Create the repository
 export const createGarden = (options: GardenOptions) => {
   const config = toConfig(options);
   const repository = toRepository(config);
-
-  // Create the graph of the markdown content where each markdown item in the repository
-  // is a single node, and any wiki-links in the markdown item is a link targetting the linked
-  // markdown item.
-  const graph: Graph = {
-    nodes: {},
-    links: [],
-  };
-
-  // Process the content if provided
-  if (options.content) {
-    for (const [filename] of Object.entries(options.content)) {
-      graph.nodes[filename] = {};
-    }
-  }
 
   return {
     graph: generateGraph(repository, config),
