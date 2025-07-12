@@ -8,7 +8,7 @@ import {
 import { BaseGardenRepository } from "./base-garden-repository";
 import { Graph } from "@adaptivekind/graph-schema";
 import { linkResolver } from "./link-resolver";
-import { parse } from "./markdown";
+import { parseMarkdownItemToMetadata } from "./markdown";
 
 const toRepository = (config: GardenConfig): GardenRepository => {
   if (config.type === "file") {
@@ -30,7 +30,7 @@ export const toConfig = (options: GardenOptions): GardenConfig => {
 };
 
 const loadItemIntoGraph = (graph: Graph, item: Item) => {
-  const itemMetaList = parse(item);
+  const itemMetaList = parseMarkdownItemToMetadata(item);
   itemMetaList.forEach((itemMeta: ItemMeta) => {
     const id =
       item.id + (itemMeta.depth == 1 ? "" : "#" + linkResolver(itemMeta.label));
