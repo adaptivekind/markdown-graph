@@ -61,7 +61,7 @@ export class BaseItem implements MarkdownDocument {
   filename: string;
   content: string;
   hash: string;
-  frontmatter: Record<string, unknown> = {};
+  frontmatter: Record<string, string> = {};
 
   constructor(
     itemReference: DocumentReference,
@@ -74,11 +74,8 @@ export class BaseItem implements MarkdownDocument {
 
     const itemMatter = safeMatter(content);
 
-    // Store the frontmatter data directly and also create flattened version for backward compatibility
-    this.frontmatter = {
-      ...itemMatter.data,
-      ...flattenObject(itemMatter.data),
-    };
+    // Flatten the frontmatter data and store it in meta
+    this.frontmatter = flattenObject(itemMatter.data);
     this.content = itemMatter.content;
   }
 }

@@ -6,7 +6,7 @@ export interface MarkdownDocument {
   filename?: string;
   hash: string;
   content: string;
-  frontmatter: Record<string, unknown>;
+  frontmatter: Record<string, string>;
 }
 
 // A MarkdownSection represents a section within a markdown document.
