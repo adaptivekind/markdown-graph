@@ -41,11 +41,11 @@ export class FileGardenRepository extends BaseGardenRepository {
     };
   }
 
-  loadContentMolecule(reference: MoleculeReference) {
+  async loadContentMolecule(reference: MoleculeReference) {
     const id = reference.id;
 
     // Find the original file path by searching through all markdown files
-    const allFiles = this.findMarkdownFilesRecursively(this.directory);
+    const allFiles = await this.findMarkdownFilesRecursively(this.directory);
     const originalFile = allFiles.find(
       (file) => this.normalizeName(file) === id,
     );
@@ -57,12 +57,14 @@ export class FileGardenRepository extends BaseGardenRepository {
     }
 
     const filePath = path.join(this.directory, originalFile);
-    const content = fs.readFileSync(filePath, "utf-8");
+    const content = await fs.promises.readFile(filePath, "utf-8");
     return new BaseItem(reference, originalFile, content);
   }
 
-  findAll(): MoleculeReference[] {
-    const markdownFiles = this.findMarkdownFilesRecursively(this.directory);
+  async findAll(): Promise<MoleculeReference[]> {
+    const markdownFiles = await this.findMarkdownFilesRecursively(
+      this.directory,
+    );
     return markdownFiles.map(this.toMoleculeReference.bind(this));
   }
 
@@ -73,9 +75,9 @@ export class FileGardenRepository extends BaseGardenRepository {
     );
   }
 
-  private findMarkdownFilesRecursively(dir: string): string[] {
+  private async findMarkdownFilesRecursively(dir: string): Promise<string[]> {
     const files: string[] = [];
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
@@ -83,7 +85,7 @@ export class FileGardenRepository extends BaseGardenRepository {
       if (entry.isDirectory()) {
         if (this.shouldScanDirectory(entry.name)) {
           // Recursively scan subdirectories
-          const subFiles = this.findMarkdownFilesRecursively(fullPath);
+          const subFiles = await this.findMarkdownFilesRecursively(fullPath);
           files.push(...subFiles);
         }
       } else if (entry.isFile() && entry.name.endsWith(".md")) {

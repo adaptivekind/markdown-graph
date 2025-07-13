@@ -13,7 +13,7 @@ foo content
 
 describe("frontmatter", () => {
   it("should extra meta from frontmatter", async () => {
-    const graph: Graph = graphFrom({
+    const graph: Graph = await graphFrom({
       foo,
     });
     expect(graph.nodes?.foo.meta?.foo).toBe("foo-value");

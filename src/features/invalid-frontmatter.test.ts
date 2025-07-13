@@ -12,8 +12,8 @@ This content has invalid YAML frontmatter that should trigger error handling.
 `;
 
 describe("invalid frontmatter", () => {
-  it("should handle invalid YAML frontmatter gracefully", () => {
-    const graph: Graph = graphFrom({
+  it("should handle invalid YAML frontmatter gracefully", async () => {
+    const graph: Graph = await graphFrom({
       "invalid-yaml": invalidYamlContent,
     });
 
@@ -25,8 +25,8 @@ describe("invalid frontmatter", () => {
     expect(graph.nodes["invalid-yaml"].meta).not.toBeDefined();
   });
 
-  it("should append error message to content when frontmatter is invalid", () => {
-    const graph: Graph = graphFrom({
+  it("should append error message to content when frontmatter is invalid", async () => {
+    const graph: Graph = await graphFrom({
       "invalid-yaml": invalidYamlContent,
     });
 

@@ -6,8 +6,8 @@ import { createGarden } from "../garden";
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");
 
 describe("file garden repository", () => {
-  it("should create garden from file repository", () => {
-    const garden = createGarden({
+  it("should create garden from file repository", async () => {
+    const garden = await createGarden({
       type: "file",
       path: testGardenPath,
     });
@@ -16,16 +16,16 @@ describe("file garden repository", () => {
     expect(garden.graph.links).toBeDefined();
   });
 
-  it("should throw error when path is not provided", () => {
-    expect(() => {
-      createGarden({
+  it("should throw error when path is not provided", async () => {
+    await expect(async () => {
+      await createGarden({
         type: "file",
       });
-    }).toThrow("File repository requires a path to be specified");
+    }).rejects.toThrow("File repository requires a path to be specified");
   });
 
-  it("should create graph with correct nodes and links", () => {
-    const garden = createGarden({
+  it("should create graph with correct nodes and links", async () => {
+    const garden = await createGarden({
       type: "file",
       path: testGardenPath,
     });

@@ -45,7 +45,7 @@ export interface CliResult {
   linkCount?: number;
 }
 
-export const runCli = (options: CliOptions = {}): CliResult => {
+export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
   const {
     targetDirectory = process.cwd(),
     outputFile: providedOutputFile = undefined,
@@ -82,7 +82,7 @@ export const runCli = (options: CliOptions = {}): CliResult => {
     consola.start(`Scanning directory: ${targetDirectory}`);
 
     // Generate graph for target directory
-    const garden = createGarden({
+    const garden = await createGarden({
       type: "file",
       path: targetDirectory,
     });
@@ -120,7 +120,7 @@ export const runCli = (options: CliOptions = {}): CliResult => {
   }
 };
 
-const main = (): boolean => {
+const main = async (): Promise<boolean> => {
   const args = process.argv.slice(2);
   const options = {
     targetDirectory: process.cwd(),
@@ -163,11 +163,17 @@ const main = (): boolean => {
     }
   }
 
-  const result = runCli(options);
+  const result = await runCli(options);
   return result.success;
 };
 
-const success = main();
-if (!success) {
-  process.exit(1);
+// Only run CLI if this file is being executed directly (not imported)
+// Don't run during tests
+if (process.env.NODE_ENV !== "test") {
+  (async () => {
+    const success = await main();
+    if (!success) {
+      process.exit(1);
+    }
+  })();
 }

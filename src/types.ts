@@ -36,6 +36,8 @@ export type GardenOptions = Partial<GardenConfig>;
 
 export interface GardenRepository {
   toMoleculeReference: (id: string) => MoleculeReference;
-  loadContentMolecule: (itemReference: MoleculeReference) => ContentMolecule;
-  findAll: () => MoleculeReference[];
+  loadContentMolecule: (
+    itemReference: MoleculeReference,
+  ) => Promise<ContentMolecule>;
+  findAll: () => Promise<MoleculeReference[]>;
 }

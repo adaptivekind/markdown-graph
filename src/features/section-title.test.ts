@@ -3,7 +3,7 @@ import { graphFrom } from "./feature-helpers";
 
 describe("section title", () => {
   it("should take title from first line", async () => {
-    const graph: Graph = graphFrom({
+    const graph: Graph = await graphFrom({
       foo: `foo content`,
     });
     expect(graph.nodes.foo.label).toBe("foo content");

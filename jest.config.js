@@ -16,6 +16,7 @@ const config = {
       statements: 80,
     },
   },
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
 };
 
 export default config;

@@ -9,12 +9,12 @@ foo content
 
 describe("generate graph", () => {
   it("empty repository should have no notes", async () => {
-    const graph: Graph = graphFrom({});
+    const graph: Graph = await graphFrom({});
     expect(Object.keys(graph.nodes)).toHaveLength(0);
   });
 
   it("single content repository should have a single note", async () => {
-    const graph: Graph = graphFrom({
+    const graph: Graph = await graphFrom({
       foo,
     });
     expect(Object.keys(graph.nodes)).toHaveLength(1);
