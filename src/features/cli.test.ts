@@ -1,49 +1,53 @@
+// Import CLI functions
 import { runCli, showHelp } from "../cli";
 import type { CliOptions } from "../cli";
+import { consola } from "consola";
 import fs from "fs";
 import path from "path";
 
-// Mock consola before importing CLI
-jest.mock("consola", () => ({
-  consola: {
-    level: 3,
-    start: jest.fn(),
-    info: jest.fn(),
-    success: jest.fn(),
-    error: jest.fn(),
-    debug: jest.fn(),
-  },
-}));
-
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");
 
-const callCli = (options: CliOptions = {}) => {
-  // Get the mocked consola
-  const { consola } = require("consola");
+// Configure Jest timeout for this test suite
+jest.setTimeout(15000);
 
-  // Reset mocks
-  Object.values(consola).forEach((mock: unknown) => {
-    if (typeof mock === "function" && (mock as jest.Mock).mockClear) {
-      (mock as jest.Mock).mockClear();
-    }
-  });
+// Mock consola methods
+const mockStart = jest.spyOn(consola, "start").mockImplementation(() => {});
+const mockInfo = jest.spyOn(consola, "info").mockImplementation(() => {});
+const mockSuccess = jest.spyOn(consola, "success").mockImplementation(() => {});
+const mockError = jest.spyOn(consola, "error").mockImplementation(() => {});
+const mockDebug = jest.spyOn(consola, "debug").mockImplementation(() => {});
+
+const callCli = (options: CliOptions = {}) => {
+  // Reset mocks before each call
+  mockStart.mockClear();
+  mockInfo.mockClear();
+  mockSuccess.mockClear();
+  mockError.mockClear();
+  mockDebug.mockClear();
+  consola.level = 3; // Reset level
 
   const result = runCli(options);
 
+  // Capture calls immediately after execution
+  const logs = {
+    start: [...mockStart.mock.calls],
+    info: [...mockInfo.mock.calls],
+    success: [...mockSuccess.mock.calls],
+    error: [...mockError.mock.calls],
+    debug: [...mockDebug.mock.calls],
+  };
+
   return {
     result,
-    logs: {
-      start: consola.start.mock.calls,
-      info: consola.info.mock.calls,
-      success: consola.success.mock.calls,
-      error: consola.error.mock.calls,
-      debug: consola.debug.mock.calls,
-    },
+    logs,
   };
 };
 
 describe("CLI", () => {
   beforeEach(() => {
+    // Reset consola level
+    consola.level = 3;
+
     // Clean up any existing output files
     const defaultOutput = path.join(testGardenPath, ".garden-graph.json");
     if (fs.existsSync(defaultOutput)) {
@@ -67,6 +71,9 @@ describe("CLI", () => {
     if (fs.existsSync(customOutput)) {
       fs.unlinkSync(customOutput);
     }
+
+    // Reset all mocks
+    jest.clearAllMocks();
   });
 
   it("should generate graph in target directory by default", () => {
@@ -268,7 +275,6 @@ describe("CLI", () => {
     });
 
     expect(result.success).toBe(true);
-    const { consola } = require("consola");
     expect(consola.level).toBe(0); // Quiet mode
 
     // Check that the file was still created
@@ -283,7 +289,6 @@ describe("CLI", () => {
     });
 
     expect(result.success).toBe(true);
-    const { consola } = require("consola");
     expect(consola.level).toBe(0); // Quiet mode
   });
 });
