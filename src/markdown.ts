@@ -105,28 +105,21 @@ const toSections = (markdownSyntaxTree: Parent) => {
   return sections;
 };
 
-const getAllNodesFromParent = (parentNode: Parent): Node[] => {
-  const directChildren = parentNode.children;
-  return directChildren
-    ? [
-        ...directChildren,
-        ...directChildren
-          .map((child) => getAllNodesFromParent(child as Parent))
-          .flat(),
-      ]
-    : [];
-};
-
 const getAllNodesFromSection = (section: Section): Node[] => {
-  const sectionChildren = section.children;
-  return sectionChildren
-    ? [
-        ...sectionChildren,
-        ...sectionChildren
-          .map((child) => getAllNodesFromParent(child as Parent))
-          .flat(),
-      ]
-    : [];
+  // Optimized section node collection
+  const result: Node[] = [];
+  const queue: Node[] = [...section.children];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    result.push(current);
+
+    if ("children" in current && current.children) {
+      queue.push(...(current.children as Node[]));
+    }
+  }
+
+  return result;
 };
 
 const extractFileNameFromUrl = (url: string) => {
@@ -138,17 +131,17 @@ const toMarkdownSection = (
   document: MarkdownDocument,
   section: Section,
 ): MarkdownSection => {
-  const foundLinks = getAllNodesFromSection(section)
-    .filter(
-      (node) =>
-        node.type === "wikiLink" ||
-        (node.type === "link" && (node as Link).url.startsWith("./")),
-    )
-    .map((linkNode) =>
-      linkNode.type === "wikiLink"
-        ? linkResolver((linkNode as Literal).value)
-        : extractFileNameFromUrl((linkNode as Link).url),
-    );
+  // Single-pass link extraction for better performance
+  const foundLinks: string[] = [];
+  const nodes = getAllNodesFromSection(section);
+
+  for (const node of nodes) {
+    if (node.type === "wikiLink") {
+      foundLinks.push(linkResolver((node as Literal).value));
+    } else if (node.type === "link" && (node as Link).url.startsWith("./")) {
+      foundLinks.push(extractFileNameFromUrl((node as Link).url));
+    }
+  }
 
   return {
     title: section.title,
@@ -158,15 +151,17 @@ const toMarkdownSection = (
   };
 };
 
+// Shared parser instance to avoid repeated instantiation overhead
+const sharedParser = unified()
+  .use(remarkWikiLink, {
+    hrefTemplate: (permalink: string) => `${permalink}`,
+  })
+  .use(remarkParse);
+
 export const parseMarkdownDocument = (
   document: MarkdownDocument,
 ): MarkdownSection[] => {
-  const markdownSyntaxTree: Parent = unified()
-    .use(remarkWikiLink, {
-      hrefTemplate: (permalink: string) => `${permalink}`,
-    })
-    .use(remarkParse)
-    .parse(document.content);
+  const markdownSyntaxTree: Parent = sharedParser.parse(document.content);
 
   return toSections(markdownSyntaxTree).map((section) =>
     toMarkdownSection(document, section),

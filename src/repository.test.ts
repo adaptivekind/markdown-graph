@@ -21,8 +21,12 @@ describe("FileRepository", () => {
       expect(() => new FileRepository(process.cwd())).not.toThrow();
     });
 
-    it("should throw DirectoryNotFoundError for non-existent directory", () => {
-      expect(() => new FileRepository(nonExistentDir)).toThrow(
+    it("should throw DirectoryNotFoundError for non-existent directory on first use", async () => {
+      const repo = new FileRepository(nonExistentDir);
+
+      // Directory validation is now lazy, so error occurs on first use
+      const references = repo.findAll();
+      await expect(references[Symbol.asyncIterator]().next()).rejects.toThrow(
         DirectoryNotFoundError,
       );
     });

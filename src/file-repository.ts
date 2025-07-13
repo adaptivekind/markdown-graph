@@ -63,11 +63,13 @@ export class FileRepository implements MarkdownRepository {
       includeHidden: false,
       ...options,
     };
-    this.validateDirectory();
+    // Directory validation is now lazy - happens on first use
   }
 
-  private validateDirectory(): void {
-    if (!fs.existsSync(this.directory)) {
+  private async validateDirectory(): Promise<void> {
+    try {
+      await fs.promises.access(this.directory);
+    } catch {
       throw new DirectoryNotFoundError(this.directory);
     }
   }
@@ -108,6 +110,7 @@ export class FileRepository implements MarkdownRepository {
   }
 
   async *findAll(): AsyncIterable<DocumentReference> {
+    await this.validateDirectory(); // Lazy validation
     yield* this.findMarkdownFilesRecursively(this.directory);
   }
 
