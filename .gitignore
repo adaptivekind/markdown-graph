@@ -2,5 +2,6 @@ dist/
 node_modules/
 .rollup.cache/
 coverage/
+test/
 
 tsconfig.tsbuildinfo

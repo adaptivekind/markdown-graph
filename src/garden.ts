@@ -44,7 +44,15 @@ const generateGraph = (
     nodes: {},
     links: [],
   };
-  if (Object.keys(config.content).length > 0) {
+
+  if (config.type === "file") {
+    // For file repositories, get available files from the repository
+    const files = (repository as any).getAvailableFiles();
+    for (const id of files) {
+      enrichGraph(graph, loadContentMolecule(repository, `${id}.md`));
+    }
+  } else if (Object.keys(config.content).length > 0) {
+    // For content-based repositories
     for (const id in config.content) {
       enrichGraph(graph, loadContentMolecule(repository, `${id}.md`));
     }

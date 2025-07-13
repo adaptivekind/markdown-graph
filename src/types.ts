@@ -29,6 +29,7 @@ export interface MoleculeReference {
 export type GardenConfig = {
   content: { [id: string]: string };
   type: "file" | "inmemory";
+  path?: string; // Directory path for file repository
 };
 
 export type GardenOptions = Partial<GardenConfig>;
@@ -36,4 +37,5 @@ export type GardenOptions = Partial<GardenConfig>;
 export interface GardenRepository {
   toMoleculeReference: (id: string) => MoleculeReference;
   loadContentMolecule: (itemReference: MoleculeReference) => ContentMolecule;
+  getAvailableFiles?: () => string[];
 }
