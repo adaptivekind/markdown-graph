@@ -17,7 +17,7 @@ const mockSuccess = jest.spyOn(consola, "success").mockImplementation(() => {});
 const mockError = jest.spyOn(consola, "error").mockImplementation(() => {});
 const mockDebug = jest.spyOn(consola, "debug").mockImplementation(() => {});
 
-const callCli = (options: CliOptions = {}) => {
+const callCli = async (options: CliOptions = {}) => {
   // Reset mocks before each call
   mockStart.mockClear();
   mockInfo.mockClear();
@@ -26,7 +26,7 @@ const callCli = (options: CliOptions = {}) => {
   mockDebug.mockClear();
   consola.level = 3; // Reset level
 
-  const result = runCli(options);
+  const result = await runCli(options);
 
   // Capture calls immediately after execution
   const logs = {
@@ -76,8 +76,8 @@ describe("CLI", () => {
     jest.clearAllMocks();
   });
 
-  it("should generate graph in target directory by default", () => {
-    const { result, logs } = callCli({ targetDirectory: testGardenPath });
+  it("should generate graph in target directory by default", async () => {
+    const { result, logs } = await callCli({ targetDirectory: testGardenPath });
 
     expect(result.success).toBe(true);
     expect(result.nodeCount).toBe(5); // Now includes subdirectory files
@@ -113,8 +113,8 @@ describe("CLI", () => {
     expect(content.nodes["subdirectory-note5"].label).toBe("Note Five");
   });
 
-  it("should generate graph in current directory when no args provided", () => {
-    const { result, logs } = callCli();
+  it("should generate graph in current directory when no args provided", async () => {
+    const { result, logs } = await callCli();
 
     expect(result.success).toBe(true);
     expect(logs.start).toHaveLength(1);
@@ -128,9 +128,9 @@ describe("CLI", () => {
     fs.unlinkSync(outputPath);
   });
 
-  it("should use custom output file when -o option provided", () => {
+  it("should use custom output file when -o option provided", async () => {
     const customPath = "custom-output.json";
-    const { result, logs } = callCli({
+    const { result, logs } = await callCli({
       targetDirectory: testGardenPath,
       outputFile: customPath,
     });
@@ -190,8 +190,8 @@ describe("CLI", () => {
     consoleSpy.mockRestore();
   });
 
-  it("should handle non-existent directory gracefully", () => {
-    const { result, logs } = callCli({
+  it("should handle non-existent directory gracefully", async () => {
+    const { result, logs } = await callCli({
       targetDirectory: "/non/existent/directory",
     });
 
@@ -201,11 +201,11 @@ describe("CLI", () => {
     expect(logs.error).toHaveLength(1);
   });
 
-  it("should handle missing output filename gracefully", () => {
+  it("should handle missing output filename gracefully", async () => {
     // This error is handled in the main() function argument parsing,
     // not in runCli, so we'll test that when no output is provided
     // it defaults to the target directory
-    const { result } = callCli({
+    const { result } = await callCli({
       targetDirectory: testGardenPath,
     });
 
@@ -215,13 +215,13 @@ describe("CLI", () => {
     );
   });
 
-  it("should handle empty directory without markdown files", () => {
+  it("should handle empty directory without markdown files", async () => {
     // Create a temporary empty directory
     const emptyDir = path.join(process.cwd(), "temp-empty-dir");
     fs.mkdirSync(emptyDir, { recursive: true });
 
     try {
-      const { result, logs } = callCli({ targetDirectory: emptyDir });
+      const { result, logs } = await callCli({ targetDirectory: emptyDir });
 
       expect(result.success).toBe(true);
       expect(result.nodeCount).toBe(0);
@@ -244,8 +244,8 @@ describe("CLI", () => {
     }
   });
 
-  it("should show verbose output when -v flag is used", () => {
-    const { result, logs } = callCli({
+  it("should show verbose output when -v flag is used", async () => {
+    const { result, logs } = await callCli({
       targetDirectory: testGardenPath,
       verbose: true,
     });
@@ -259,8 +259,8 @@ describe("CLI", () => {
     expect(logs.success).toHaveLength(1);
   });
 
-  it("should show verbose output when --verbose flag is used", () => {
-    const { result, logs } = callCli({
+  it("should show verbose output when --verbose flag is used", async () => {
+    const { result, logs } = await callCli({
       targetDirectory: testGardenPath,
       verbose: true,
     });
@@ -272,8 +272,8 @@ describe("CLI", () => {
     expect(logs.debug[2][0]).toContain("Nodes:");
   });
 
-  it("should suppress output when -q flag is used", () => {
-    const { result } = callCli({
+  it("should suppress output when -q flag is used", async () => {
+    const { result } = await callCli({
       targetDirectory: testGardenPath,
       quiet: true,
     });
@@ -286,8 +286,8 @@ describe("CLI", () => {
     expect(fs.existsSync(outputPath)).toBe(true);
   });
 
-  it("should suppress output when --quiet flag is used", () => {
-    const { result } = callCli({
+  it("should suppress output when --quiet flag is used", async () => {
+    const { result } = await callCli({
       targetDirectory: testGardenPath,
       quiet: true,
     });

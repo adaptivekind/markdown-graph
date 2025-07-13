@@ -1,21 +1,21 @@
 import { createGarden } from "../garden";
 
 describe("file repository", () => {
-  it("should throw error when path is not provided", () => {
-    expect(() => {
-      createGarden({
+  it("should throw error when path is not provided", async () => {
+    await expect(async () => {
+      await createGarden({
         type: "file",
         content: {},
       });
-    }).toThrow("File repository requires a path to be specified");
+    }).rejects.toThrow("File repository requires a path to be specified");
   });
 
-  it("should throw error for non-existent directory", () => {
-    expect(() => {
-      createGarden({
+  it("should throw error for non-existent directory", async () => {
+    await expect(async () => {
+      await createGarden({
         type: "file",
         path: "/non/existent/directory",
       });
-    }).toThrow("Directory does not exist: /non/existent/directory");
+    }).rejects.toThrow("Directory does not exist: /non/existent/directory");
   });
 });

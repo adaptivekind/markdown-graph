@@ -1,4 +1,4 @@
 import { createGarden } from "../garden";
 
-export const graphFrom = (content: { [key: string]: string }) =>
-  createGarden({ content, type: "inmemory" }).graph;
+export const graphFrom = async (content: { [key: string]: string }) =>
+  (await createGarden({ content, type: "inmemory" })).graph;

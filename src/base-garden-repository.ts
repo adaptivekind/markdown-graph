@@ -27,7 +27,7 @@ export class BaseGardenRepository implements GardenRepository {
     };
   }
 
-  loadContentMolecule(reference: MoleculeReference) {
+  async loadContentMolecule(reference: MoleculeReference) {
     const id = reference.id;
     if (id in this.content) {
       return new BaseItem(reference, id, this.content[id]);
@@ -35,7 +35,9 @@ export class BaseGardenRepository implements GardenRepository {
     throw `Cannot load ${id} since does not exist in ${this.description()}`;
   }
 
-  findAll(): MoleculeReference[] {
-    return Object.keys(this.content).map(this.toMoleculeReference.bind(this));
+  async *findAll(): AsyncIterable<MoleculeReference> {
+    for (const key in this.content) {
+      yield this.toMoleculeReference(key);
+    }
   }
 }

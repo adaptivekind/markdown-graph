@@ -28,31 +28,32 @@ const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
   });
 };
 
-const loadContentMolecule = (
+const loadContentMolecule = async (
   repository: GardenRepository,
   reference: MoleculeReference,
-): ContentMolecule => {
-  return repository.loadContentMolecule(reference);
+): Promise<ContentMolecule> => {
+  return await repository.loadContentMolecule(reference);
 };
 
 // .
-const generateGraph = (repository: GardenRepository): Graph => {
+const generateGraph = async (repository: GardenRepository): Promise<Graph> => {
   const graph: Graph = {
     nodes: {},
     links: [],
   };
-  for (const itemReference of repository.findAll()) {
-    enrichGraph(graph, loadContentMolecule(repository, itemReference));
+  for await (const reference of repository.findAll()) {
+    const molecule = await loadContentMolecule(repository, reference);
+    enrichGraph(graph, molecule);
   }
 
   return graph;
 };
 
-export const createGarden = (options: GardenOptions) => {
+export const createGarden = async (options: GardenOptions) => {
   const config = toConfig(options);
   const repository = toRepository(config);
 
   return {
-    graph: generateGraph(repository),
+    graph: await generateGraph(repository),
   };
 };
