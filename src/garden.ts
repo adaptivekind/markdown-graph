@@ -1,16 +1,16 @@
 import {
   ContentAtom,
   ContentMolecule,
-  GardenConfig,
   GardenOptions,
   GardenRepository,
+  MoleculeReference,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
 import { parseContentMolecule } from "./markdown";
 import { toConfig } from "./config";
-import { toRepository } from "./base-garden-repository";
+import { toRepository } from "./repository-factory";
 
 const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
   const atoms = parseContentMolecule(molecule);
@@ -30,25 +30,21 @@ const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
 
 const loadContentMolecule = (
   repository: GardenRepository,
-  filename: string,
+  reference: MoleculeReference,
 ): ContentMolecule => {
-  const reference = repository.toMoleculeReference(filename);
   return repository.loadContentMolecule(reference);
 };
 
-const generateGraph = (
-  repository: GardenRepository,
-  config: GardenConfig,
-): Graph => {
+// .
+const generateGraph = (repository: GardenRepository): Graph => {
   const graph: Graph = {
     nodes: {},
     links: [],
   };
-  if (Object.keys(config.content).length > 0) {
-    for (const id in config.content) {
-      enrichGraph(graph, loadContentMolecule(repository, `${id}.md`));
-    }
+  for (const itemReference of repository.findAll()) {
+    enrichGraph(graph, loadContentMolecule(repository, itemReference));
   }
+
   return graph;
 };
 
@@ -57,6 +53,6 @@ export const createGarden = (options: GardenOptions) => {
   const repository = toRepository(config);
 
   return {
-    graph: generateGraph(repository, config),
+    graph: generateGraph(repository),
   };
 };

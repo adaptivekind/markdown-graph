@@ -1,13 +1,6 @@
-import { GardenConfig, GardenRepository, MoleculeReference } from "./types";
+import { GardenRepository, MoleculeReference } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
-
-export const toRepository = (config: GardenConfig): GardenRepository => {
-  if (config.type === "file") {
-    throw Error("File repository not yet implemented");
-  }
-  return new BaseGardenRepository(config.content);
-};
 
 export class BaseGardenRepository implements GardenRepository {
   private content;
@@ -40,5 +33,9 @@ export class BaseGardenRepository implements GardenRepository {
       return new BaseItem(reference, id, this.content[id]);
     }
     throw `Cannot load ${id} since does not exist in ${this.description()}`;
+  }
+
+  findAll(): MoleculeReference[] {
+    return Object.keys(this.content).map(this.toMoleculeReference.bind(this));
   }
 }

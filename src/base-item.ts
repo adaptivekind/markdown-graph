@@ -15,11 +15,12 @@ const flattenObject = (
       const newKey = prefix ? `${prefix}.${key}` : key;
       const value = obj[key];
 
-      if (
-        value !== null &&
-        typeof value === "object" &&
-        !Array.isArray(value)
-      ) {
+      if (Array.isArray(value)) {
+        // Handle arrays by creating indexed keys
+        value.forEach((item, index) => {
+          flattened[`${newKey}.${index}`] = String(item);
+        });
+      } else if (value !== null && typeof value === "object") {
         // Recursively flatten nested objects
         Object.assign(
           flattened,

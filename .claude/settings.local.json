@@ -10,7 +10,10 @@
       "Bash(npm run test:coverage:*)",
       "Bash(npm run lint)",
       "Bash(npm run prettier:fix:*)",
-      "Bash(npm run eslint:fix:*)"
+      "Bash(npm run eslint:fix:*)",
+      "Bash(npx eslint:*)",
+      "Bash(find:*)",
+      "Bash(npm run eslint:*)"
     ],
     "deny": []
   }
