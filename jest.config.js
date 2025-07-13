@@ -16,14 +16,6 @@ const config = {
       statements: 80,
     },
   },
-  // CI-specific configurations
-  maxWorkers: process.env.CI ? 1 : "50%",
-  workerIdleMemoryLimit: "512MB",
-  // Increase timeouts for CI
-  testTimeout: 30000,
-  // Isolate modules between tests
-  resetModules: true,
-  clearMocks: true,
 };
 
 export default config;

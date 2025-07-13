@@ -118,10 +118,12 @@ export const runCli = (options: CliOptions = {}): CliResult => {
 
 const main = () => {
   const args = process.argv.slice(2);
-  let targetDirectory = process.cwd();
-  let outputFile: string | undefined = undefined;
-  let verbose = false;
-  let quiet = false;
+  const options = {
+    targetDirectory: process.cwd(),
+    outputFile: undefined as string | undefined,
+    verbose: false,
+    quiet: false,
+  };
 
   // Parse command line arguments
   for (let i = 0; i < args.length; i++) {
@@ -137,32 +139,27 @@ const main = () => {
         consola.error("Output option requires a filename");
         process.exit(1);
       }
-      outputFile = args[++i];
+      options.outputFile = args[++i];
       continue;
     }
 
     if (arg === "-v" || arg === "--verbose") {
-      verbose = true;
+      options.verbose = true;
       continue;
     }
 
     if (arg === "-q" || arg === "--quiet") {
-      quiet = true;
+      options.quiet = true;
       continue;
     }
 
     // If not an option, treat as directory path
     if (!arg.startsWith("-")) {
-      targetDirectory = path.resolve(arg);
+      options.targetDirectory = path.resolve(arg);
     }
   }
 
-  const result = runCli({
-    targetDirectory,
-    outputFile,
-    verbose,
-    quiet,
-  });
+  const result = runCli(options);
 
   if (!result.success) {
     throw new Error("Could not generate graph");
