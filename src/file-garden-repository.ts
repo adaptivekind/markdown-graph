@@ -9,6 +9,7 @@ import type { MoleculeReference } from "./types";
 
 export class FileGardenRepository extends BaseGardenRepository {
   private directory: string;
+  private excludes = ["node_modules", "dist"];
 
   constructor(directory: string) {
     super({});
@@ -27,9 +28,10 @@ export class FileGardenRepository extends BaseGardenRepository {
   }
 
   normalizeName(filename: string): string {
-    const matchName = /([^/]*?)\.md$/.exec(filename);
-    const name = matchName ? matchName[1] : filename;
-    return name.toLowerCase();
+    // Remove .md extension and normalize path separators
+    const withoutExtension = filename.replace(/\.md$/, "");
+    // Replace path separators with dashes to create a valid ID
+    return withoutExtension.replace(/[/\\]/g, "-").toLowerCase();
   }
 
   toMoleculeReference(filename: string): MoleculeReference {
@@ -41,21 +43,56 @@ export class FileGardenRepository extends BaseGardenRepository {
 
   loadContentMolecule(reference: MoleculeReference) {
     const id = reference.id;
-    const filePath = path.join(this.directory, `${id}.md`);
 
-    if (!fs.existsSync(filePath)) {
+    // Find the original file path by searching through all markdown files
+    const allFiles = this.findMarkdownFilesRecursively(this.directory);
+    const originalFile = allFiles.find(
+      (file) => this.normalizeName(file) === id,
+    );
+
+    if (!originalFile) {
       throw new Error(
         `Cannot load ${id} since it does not exist in ${this.description()}`,
       );
     }
 
+    const filePath = path.join(this.directory, originalFile);
     const content = fs.readFileSync(filePath, "utf-8");
-    return new BaseItem(reference, `${id}.md`, content);
+    return new BaseItem(reference, originalFile, content);
   }
 
   findAll(): MoleculeReference[] {
-    const files = fs.readdirSync(this.directory);
-    const markdownFiles = files.filter((file) => file.endsWith(".md"));
+    const markdownFiles = this.findMarkdownFilesRecursively(this.directory);
     return markdownFiles.map(this.toMoleculeReference.bind(this));
+  }
+
+  private shouldScanDirectory(relativeDirectoryName: string) {
+    return (
+      !this.excludes.includes(relativeDirectoryName) &&
+      !relativeDirectoryName.startsWith(".")
+    );
+  }
+
+  private findMarkdownFilesRecursively(dir: string): string[] {
+    const files: string[] = [];
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        if (this.shouldScanDirectory(entry.name)) {
+          // Recursively scan subdirectories
+          const subFiles = this.findMarkdownFilesRecursively(fullPath);
+          files.push(...subFiles);
+        }
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        // Get relative path from the repository root directory
+        const relativePath = path.relative(this.directory, fullPath);
+        files.push(relativePath);
+      }
+    }
+
+    return files;
   }
 }

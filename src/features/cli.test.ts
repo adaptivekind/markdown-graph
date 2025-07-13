@@ -80,8 +80,8 @@ describe("CLI", () => {
     const { result, logs } = callCli({ targetDirectory: testGardenPath });
 
     expect(result.success).toBe(true);
-    expect(result.nodeCount).toBe(3);
-    expect(result.linkCount).toBe(4);
+    expect(result.nodeCount).toBe(5); // Now includes subdirectory files
+    expect(result.linkCount).toBe(6); // Additional links from subdirectory files
     expect(result.outputFile).toBe(
       path.join(testGardenPath, ".garden-graph.json"),
     );
@@ -90,7 +90,7 @@ describe("CLI", () => {
     expect(logs.start).toHaveLength(1);
     expect(logs.start[0][0]).toContain("Scanning directory:");
     expect(logs.info).toHaveLength(1);
-    expect(logs.info[0][0]).toContain("Found 3 nodes and 4 links");
+    expect(logs.info[0][0]).toContain("Found 5 nodes and 6 links");
     expect(logs.success).toHaveLength(1);
     expect(logs.success[0][0]).toContain("Graph generated and written to");
 
@@ -102,11 +102,15 @@ describe("CLI", () => {
     const content = JSON.parse(fs.readFileSync(outputPath, "utf-8"));
     expect(content.nodes).toBeDefined();
     expect(content.links).toBeDefined();
-    expect(Object.keys(content.nodes)).toHaveLength(3);
-    expect(content.links).toHaveLength(4);
+    expect(Object.keys(content.nodes)).toHaveLength(5);
+    expect(content.links).toHaveLength(6);
     expect(content.nodes.note1.label).toBe("Note One");
     expect(content.nodes.note2.label).toBe("Note Two");
     expect(content.nodes.note3.label).toBe("Note Three");
+    expect(content.nodes["subdirectory-note4"].label).toBe(
+      "Note Four in Subdirectory",
+    );
+    expect(content.nodes["subdirectory-note5"].label).toBe("Note Five");
   });
 
   it("should generate graph in current directory when no args provided", () => {
@@ -144,7 +148,7 @@ describe("CLI", () => {
     const content = JSON.parse(fs.readFileSync(outputPath, "utf-8"));
     expect(content.nodes).toBeDefined();
     expect(content.links).toBeDefined();
-    expect(Object.keys(content.nodes)).toHaveLength(3);
+    expect(Object.keys(content.nodes)).toHaveLength(5);
   });
 
   it("should show help when --help option provided", () => {
