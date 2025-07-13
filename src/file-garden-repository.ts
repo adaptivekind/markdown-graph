@@ -8,22 +8,22 @@ import { hash } from "./hash";
 import type { MoleculeReference } from "./types";
 
 export class FileGardenRepository extends BaseGardenRepository {
-  private directoryPath: string;
+  private directory: string;
 
-  constructor(directoryPath: string) {
+  constructor(directory: string) {
     super({});
-    this.directoryPath = directoryPath;
+    this.directory = directory;
     this.validateDirectory();
   }
 
   private validateDirectory(): void {
-    if (!fs.existsSync(this.directoryPath)) {
-      throw new Error(`Directory does not exist: ${this.directoryPath}`);
+    if (!fs.existsSync(this.directory)) {
+      throw new Error(`Directory does not exist: ${this.directory}`);
     }
   }
 
   description(): string {
-    return `file repository at ${this.directoryPath}`;
+    return `file repository at ${this.directory}`;
   }
 
   normalizeName(filename: string): string {
@@ -41,7 +41,7 @@ export class FileGardenRepository extends BaseGardenRepository {
 
   loadContentMolecule(reference: MoleculeReference) {
     const id = reference.id;
-    const filePath = path.join(this.directoryPath, `${id}.md`);
+    const filePath = path.join(this.directory, `${id}.md`);
 
     if (!fs.existsSync(filePath)) {
       throw new Error(
@@ -55,7 +55,7 @@ export class FileGardenRepository extends BaseGardenRepository {
 
   // Method to get list of available files
   getAvailableFiles(): string[] {
-    const files = fs.readdirSync(this.directoryPath);
+    const files = fs.readdirSync(this.directory);
     const markdownFiles = files.filter((file) => file.endsWith(".md"));
     return markdownFiles.map((file) => this.normalizeName(file));
   }
