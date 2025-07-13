@@ -4,6 +4,34 @@ import { MarkdownMessage } from "./mardown-message";
 
 type Matter = GrayMatterFile<string> & {};
 
+const flattenObject = (
+  obj: any,
+  prefix: string = "",
+): { [key: string]: string } => {
+  const flattened: { [key: string]: string } = {};
+
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const newKey = prefix ? `${prefix}.${key}` : key;
+      const value = obj[key];
+
+      if (
+        value !== null &&
+        typeof value === "object" &&
+        !Array.isArray(value)
+      ) {
+        // Recursively flatten nested objects
+        Object.assign(flattened, flattenObject(value, newKey));
+      } else {
+        // Convert to string for storage
+        flattened[newKey] = String(value);
+      }
+    }
+  }
+
+  return flattened;
+};
+
 const safeMatter = (content: string) => {
   try {
     // Note that the gray matter API caches the results if there are no options.
@@ -44,9 +72,8 @@ export class BaseItem implements ContentMolecule {
 
     const itemMatter = safeMatter(content);
 
-    Object.keys(itemMatter.data).forEach((key: string) => {
-      this.meta[key] = `${itemMatter.data[key]}`;
-    });
+    // Flatten the frontmatter data and store it in meta
+    this.meta = flattenObject(itemMatter.data);
     this.content = itemMatter.content;
   }
 }
