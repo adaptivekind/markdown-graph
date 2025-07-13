@@ -1,40 +1,20 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import path from "path";
-// eslint-disable-next-line sort-imports
+import { loadConfig, validateConfig } from "./config";
+import { Command } from "commander";
 import { consola } from "consola";
 import { createGarden } from "./garden";
-
-export const showHelp = () => {
-  // eslint-disable-next-line no-console
-  console.log(`
-Usage: markdown-graph [options] [directory]
-
-Generate a graph from markdown files and save to .garden-graph.json
-
-Options:
-  -h, --help     Show this help message
-  -o, --output   Output file path (default: .garden-graph.json)
-  -v, --verbose  Enable verbose logging
-  -q, --quiet    Suppress all output except errors
-
-Arguments:
-  directory      Directory to scan for markdown files (default: current directory)
-
-Examples:
-  markdown-graph                    # Generate graph for current directory → ./.garden-graph.json
-  markdown-graph ./docs             # Generate graph for docs directory → ./docs/.garden-graph.json
-  markdown-graph -o graph.json      # Use custom output file → ./graph.json
-  markdown-graph -v ./docs          # Generate with verbose logging
-`);
-};
+import fs from "fs";
+import path from "path";
+import { reportError } from "./error-reporter";
 
 export interface CliOptions {
   targetDirectory?: string;
   outputFile?: string;
   verbose?: boolean;
   quiet?: boolean;
+  excludes?: string[];
+  includeHidden?: boolean;
 }
 
 export interface CliResult {
@@ -46,32 +26,43 @@ export interface CliResult {
 }
 
 export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
-  const {
-    targetDirectory = process.cwd(),
-    outputFile: providedOutputFile = undefined,
-    verbose = false,
-    quiet = false,
-  } = options;
-
-  // Configure logger based on flags
-  if (quiet) {
-    consola.level = 0; // Only fatal errors
-  } else if (verbose) {
-    consola.level = 4; // All logs including debug
-  } else {
-    consola.level = 3; // Default: info, warn, error, success
-  }
-
-  // Default output file goes in the target directory
-  const outputFile = providedOutputFile
-    ? path.isAbsolute(providedOutputFile)
-      ? providedOutputFile
-      : path.join(process.cwd(), providedOutputFile)
-    : path.join(targetDirectory, ".garden-graph.json");
-
-  const startTime = performance.now();
-
   try {
+    // Load and validate configuration
+    const config = loadConfig(options);
+    validateConfig(config);
+
+    // Use CLI options as priority, then config, then defaults
+    const targetDirectory =
+      options.targetDirectory || config.targetDirectory || process.cwd();
+    const providedOutputFile = options.outputFile; // Only use explicitly provided output file
+    const verbose =
+      options.verbose !== undefined ? options.verbose : config.verbose || false;
+    const quiet =
+      options.quiet !== undefined ? options.quiet : config.quiet || false;
+    // Note: excludes and includeHidden are available for future use
+    // const excludes = options.excludes || config.excludes;
+    // const includeHidden = options.includeHidden !== undefined
+    //   ? options.includeHidden
+    //   : config.includeHidden;
+
+    // Configure logger based on flags
+    if (quiet) {
+      consola.level = 0; // Only fatal errors
+    } else if (verbose) {
+      consola.level = 4; // All logs including debug
+    } else {
+      consola.level = 3; // Default: info, warn, error, success
+    }
+
+    // Default output file goes in the target directory
+    const outputFile = providedOutputFile
+      ? path.isAbsolute(providedOutputFile)
+        ? providedOutputFile
+        : path.join(process.cwd(), providedOutputFile)
+      : path.join(targetDirectory, ".garden-graph.json");
+
+    const startTime = performance.now();
+
     // Check if target directory exists
     if (!fs.existsSync(targetDirectory)) {
       const message = `Directory does not exist: ${targetDirectory}`;
@@ -114,66 +105,89 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
       linkCount,
     };
   } catch (error) {
-    const message = `Failed to generate graph: ${error instanceof Error ? error.message : error}`;
+    if (error instanceof Error) {
+      reportError(error);
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+
+    const message = `Failed to generate graph: ${error}`;
     consola.error(message);
     return { success: false, message };
   }
 };
 
-const main = async (): Promise<boolean> => {
-  const args = process.argv.slice(2);
-  const options = {
-    targetDirectory: process.cwd(),
-    outputFile: undefined as string | undefined,
-    verbose: false,
-    quiet: false,
-  };
+const setupCliProgram = (): Command => {
+  const program = new Command();
 
-  // Parse command line arguments
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+  program
+    .name("markdown-graph")
+    .description("Generate a graph from markdown files")
+    .version("0.0.1")
+    .argument(
+      "[directory]",
+      "Directory to scan for markdown files",
+      process.cwd(),
+    )
+    .option(
+      "-o, --output <file>",
+      "Output file path (default: .garden-graph.json)",
+    )
+    .option("-v, --verbose", "Enable verbose logging", false)
+    .option("-q, --quiet", "Suppress all output except errors", false)
+    .option("--exclude <patterns...>", "Patterns to exclude from scanning")
+    .option("--include-hidden", "Include hidden files and directories", false)
+    .action(
+      async (
+        directory: string,
+        options: {
+          output?: string;
+          verbose: boolean;
+          quiet: boolean;
+          exclude?: string[];
+          includeHidden: boolean;
+        },
+      ) => {
+        const cliOptions: CliOptions = {
+          targetDirectory: path.resolve(directory),
+          outputFile: options.output,
+          verbose: options.verbose,
+          quiet: options.quiet,
+          excludes: options.exclude,
+          includeHidden: options.includeHidden,
+        };
 
-    if (arg === "-h" || arg === "--help") {
-      showHelp();
-      return true;
+        const result = await runCli(cliOptions);
+        if (!result.success) {
+          process.exit(1);
+        }
+      },
+    );
+
+  return program;
+};
+
+const main = async (): Promise<void> => {
+  try {
+    const program = setupCliProgram();
+    await program.parseAsync(process.argv);
+  } catch (error) {
+    if (error instanceof Error) {
+      reportError(error);
+    } else {
+      consola.error("Unexpected error:", error);
     }
-
-    if (arg === "-o" || arg === "--output") {
-      if (i + 1 >= args.length) {
-        consola.error("Output option requires a filename");
-        return false;
-      }
-      options.outputFile = args[++i];
-      continue;
-    }
-
-    if (arg === "-v" || arg === "--verbose") {
-      options.verbose = true;
-      continue;
-    }
-
-    if (arg === "-q" || arg === "--quiet") {
-      options.quiet = true;
-      continue;
-    }
-
-    // If not an option, treat as directory path
-    if (!arg.startsWith("-")) {
-      options.targetDirectory = path.resolve(arg);
-    }
+    process.exit(1);
   }
-
-  const result = await runCli(options);
-  return result.success;
 };
 
 // Only run CLI if this file is being executed directly (not imported)
 // Don't run during tests
 if (process.env.NODE_ENV !== "test") {
-  (async () => {
-    const success = await main();
-    if (!success) {
-      process.exit(1);
-    }
-  })();
+  main().catch((error) => {
+    consola.error("Unexpected error:", error);
+    process.exit(1);
+  });
 }

@@ -1,12 +1,11 @@
-import { BaseItem } from "./base-item";
-import { DocumentNotFoundError } from "./errors";
-import { hash } from "./hash";
-// eslint-disable-next-line sort-imports
 import type {
   DocumentReference,
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
+import { BaseItem } from "./base-item";
+import { DocumentNotFoundError } from "./errors";
+import { hash } from "./hash";
 
 class InMemoryDocumentReference implements DocumentReference {
   constructor(
@@ -15,6 +14,25 @@ class InMemoryDocumentReference implements DocumentReference {
   ) {}
 }
 
+/**
+ * In-memory repository for accessing markdown documents
+ *
+ * Stores markdown content in memory as key-value pairs. Useful for testing
+ * or when working with dynamically generated content that doesn't exist
+ * on the file system.
+ *
+ * @example
+ * ```typescript
+ * const repository = new InMemoryRepository({
+ *   'doc1': '# Document 1\nContent here',
+ *   'doc2': '# Document 2\nMore content'
+ * });
+ *
+ * const doc = await repository.loadDocument(
+ *   repository.toDocumentReference('doc1')
+ * );
+ * ```
+ */
 export class InMemoryRepository implements MarkdownRepository {
   private readonly content: Map<string, string>;
 
