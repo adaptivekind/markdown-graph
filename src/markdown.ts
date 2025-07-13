@@ -1,5 +1,5 @@
-import { ContentAtom, ContentMolecule } from "./types";
 import { Heading, Link, Literal } from "mdast";
+import { MarkdownDocument, MarkdownSection } from "./types";
 import { Node, Parent } from "unist";
 import { linkResolver } from "./link-resolver";
 import remarkParse from "remark-parse";
@@ -134,10 +134,10 @@ const extractFileNameFromUrl = (url: string) => {
   return fileNameMatch ? fileNameMatch[1] : url;
 };
 
-const toContentAtom = (
-  item: ContentMolecule,
+const toMarkdownSection = (
+  document: MarkdownDocument,
   section: Section,
-): ContentAtom => {
+): MarkdownSection => {
   const foundLinks = getAllNodesFromSection(section)
     .filter(
       (node) =>
@@ -151,24 +151,24 @@ const toContentAtom = (
     );
 
   return {
-    label: section.title,
-    hash: item.hash,
+    title: section.title,
+    hash: document.hash,
     links: foundLinks,
     depth: section.depth,
   };
 };
 
-export const parseContentMolecule = (
-  molecule: ContentMolecule,
-): ContentAtom[] => {
+export const parseMarkdownDocument = (
+  document: MarkdownDocument,
+): MarkdownSection[] => {
   const markdownSyntaxTree: Parent = unified()
     .use(remarkWikiLink, {
       hrefTemplate: (permalink: string) => `${permalink}`,
     })
     .use(remarkParse)
-    .parse(molecule.content);
+    .parse(document.content);
 
   return toSections(markdownSyntaxTree).map((section) =>
-    toContentAtom(molecule, section),
+    toMarkdownSection(document, section),
   );
 };

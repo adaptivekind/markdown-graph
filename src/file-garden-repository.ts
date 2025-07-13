@@ -1,13 +1,11 @@
-import fs from "fs";
-import path from "path";
-// eslint-disable-next-line sort-imports
-import { BaseGardenRepository } from "./base-garden-repository";
 import { BaseItem } from "./base-item";
+import { BaseMarkdownRepository } from "./base-garden-repository";
+import type { DocumentReference } from "./types";
+import fs from "fs";
 import { hash } from "./hash";
-// eslint-disable-next-line sort-imports
-import type { MoleculeReference } from "./types";
+import path from "path";
 
-export class FileItemReference implements MoleculeReference {
+export class FileDocumentReference implements DocumentReference {
   id: string;
   filename;
   hash;
@@ -19,17 +17,31 @@ export class FileItemReference implements MoleculeReference {
   }
 }
 
-export class FileItem extends BaseItem {
-  constructor(reference: FileItemReference, directory: string) {
-    const content = fs.readFileSync(
-      path.join(directory, reference.filename),
-      "utf8",
-    );
-    super(reference, reference.filename, content);
+export class FileMarkdownDocument extends BaseItem {
+  private constructor(
+    reference: FileDocumentReference,
+    filename: string,
+    content: string,
+  ) {
+    super(reference, filename, content);
+  }
+
+  static async create(reference: FileDocumentReference, directory: string) {
+    try {
+      const content = await fs.promises.readFile(
+        path.join(directory, reference.filename),
+        "utf8",
+      );
+      return new FileMarkdownDocument(reference, reference.filename, content);
+    } catch (error) {
+      throw new Error(
+        `Failed to read file ${reference.filename}: ${error instanceof Error ? error.message : error}`,
+      );
+    }
   }
 }
 
-export class FileGardenRepository extends BaseGardenRepository {
+export class FileMarkdownRepository extends BaseMarkdownRepository {
   private directory: string;
   private excludes = ["node_modules", "dist"];
 
@@ -56,15 +68,15 @@ export class FileGardenRepository extends BaseGardenRepository {
     return withoutExtension.replace(/[/\\]/g, "-").toLowerCase();
   }
 
-  toMoleculeReference(filename: string): MoleculeReference {
-    return new FileItemReference(this.normalizeName(filename), filename);
+  toDocumentReference(filename: string): DocumentReference {
+    return new FileDocumentReference(this.normalizeName(filename), filename);
   }
 
-  async loadContentMolecule(reference: MoleculeReference) {
-    if (reference instanceof FileItemReference) {
-      return new FileItem(reference, this.directory);
+  async loadDocument(reference: DocumentReference) {
+    if (reference instanceof FileDocumentReference) {
+      return await FileMarkdownDocument.create(reference, this.directory);
     }
-    return super.loadContentMolecule(reference);
+    return super.loadDocument(reference);
   }
 
   async *findAll() {
@@ -80,7 +92,7 @@ export class FileGardenRepository extends BaseGardenRepository {
 
   private async *findMarkdownFilesRecursively(
     dir: string,
-  ): AsyncIterable<MoleculeReference> {
+  ): AsyncIterable<DocumentReference> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -92,7 +104,7 @@ export class FileGardenRepository extends BaseGardenRepository {
           yield* this.findMarkdownFilesRecursively(fullPath);
         }
       } else if (entry.isFile() && entry.name.endsWith(".md")) {
-        yield this.toMoleculeReference(path.relative(this.directory, fullPath));
+        yield this.toDocumentReference(path.relative(this.directory, fullPath));
       }
     }
   }

@@ -1,11 +1,11 @@
-import { GardenConfig, GardenOptions } from "./types";
+import { RepositoryConfig, RepositoryOptions } from "./types";
 
-const defaultConfig: GardenConfig = {
+const defaultConfig: RepositoryConfig = {
   type: "file",
   content: {},
 };
 
-export const toConfig = (options: GardenOptions): GardenConfig => {
+export const toConfig = (options: RepositoryOptions): RepositoryConfig => {
   return {
     ...defaultConfig,
     ...options,

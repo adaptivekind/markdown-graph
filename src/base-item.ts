@@ -1,4 +1,4 @@
-import { ContentMolecule, MoleculeReference } from "./types";
+import { DocumentReference, MarkdownDocument } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
 import { MarkdownMessage } from "./mardown-message";
 
@@ -56,17 +56,15 @@ const safeMatter = (content: string) => {
   }
 };
 
-export class BaseItem implements ContentMolecule {
+export class BaseItem implements MarkdownDocument {
   id: string;
   filename: string;
   content: string;
   hash: string;
-  meta: {
-    [name: string]: string;
-  } = {};
+  frontmatter: Record<string, string> = {};
 
   constructor(
-    itemReference: MoleculeReference,
+    itemReference: DocumentReference,
     filename: string,
     content: string,
   ) {
@@ -77,7 +75,7 @@ export class BaseItem implements ContentMolecule {
     const itemMatter = safeMatter(content);
 
     // Flatten the frontmatter data and store it in meta
-    this.meta = flattenObject(itemMatter.data);
+    this.frontmatter = flattenObject(itemMatter.data);
     this.content = itemMatter.content;
   }
 }

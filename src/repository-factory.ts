@@ -1,14 +1,14 @@
-import type { GardenConfig, GardenRepository } from "./types";
+import type { MarkdownRepository, RepositoryConfig } from "./types";
 
-import { BaseGardenRepository } from "./base-garden-repository";
-import { FileGardenRepository } from "./file-garden-repository";
+import { BaseMarkdownRepository } from "./base-garden-repository";
+import { FileMarkdownRepository } from "./file-garden-repository";
 
-export const toRepository = (config: GardenConfig): GardenRepository => {
+export const toRepository = (config: RepositoryConfig): MarkdownRepository => {
   if (config.type === "file") {
     if (!config.path) {
       throw new Error("File repository requires a path to be specified");
     }
-    return new FileGardenRepository(config.path);
+    return new FileMarkdownRepository(config.path);
   }
-  return new BaseGardenRepository(config.content);
+  return new BaseMarkdownRepository(config.content);
 };

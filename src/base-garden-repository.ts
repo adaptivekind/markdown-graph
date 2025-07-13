@@ -1,8 +1,8 @@
-import { GardenRepository, MoleculeReference } from "./types";
+import { DocumentReference, MarkdownRepository } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
 
-export class BaseGardenRepository implements GardenRepository {
+export class BaseMarkdownRepository implements MarkdownRepository {
   private content;
 
   constructor(content: { [key: string]: string }) {
@@ -15,29 +15,31 @@ export class BaseGardenRepository implements GardenRepository {
     return "base repository";
   }
 
-  normaliseName(id: string) {
+  normalizeName(id: string) {
     return id.toLowerCase();
   }
 
-  toMoleculeReference(filename: string) {
+  toDocumentReference(filename: string) {
     const matchName = /([^/]*).md$/.exec(filename);
     return {
-      id: this.normaliseName(matchName ? matchName[1] : filename),
+      id: this.normalizeName(matchName ? matchName[1] : filename),
       hash: hash(filename),
     };
   }
 
-  async loadContentMolecule(reference: MoleculeReference) {
+  async loadDocument(reference: DocumentReference) {
     const id = reference.id;
     if (id in this.content) {
       return new BaseItem(reference, id, this.content[id]);
     }
-    throw `Cannot load ${id} since does not exist in ${this.description()}`;
+    throw new Error(
+      `Cannot load document ${id}: does not exist in ${this.description()}`,
+    );
   }
 
-  async *findAll(): AsyncIterable<MoleculeReference> {
+  async *findAll(): AsyncIterable<DocumentReference> {
     for (const key in this.content) {
-      yield this.toMoleculeReference(key);
+      yield this.toDocumentReference(key);
     }
   }
 }
