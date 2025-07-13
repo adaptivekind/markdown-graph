@@ -29,10 +29,7 @@ jobs:
       - name: Knip
         run: npm run knip
 
-      - name: Run tests
-        run: npm run test:coverage
-
-      - name: Generate coverage report
+      - name: Run tests with coverage
         run: npm run test:coverage
 
       - name: Build
