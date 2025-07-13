@@ -1,43 +1,41 @@
-// A ContentMolecule is a block of content. It may lead to the addition of
-// multiple nodes and links to a graph.
+// A MarkdownDocument represents a parsed markdown file with its content and metadata.
+// It contains the raw markdown content and extracted frontmatter.
 
-export interface ContentMolecule {
+export interface MarkdownDocument {
   id: string;
   filename?: string;
   hash: string;
   content: string;
-  meta: {
-    [name: string]: string;
-  };
+  frontmatter: Record<string, unknown>;
 }
 
-// A ContentAtom is meta data that describes each part of the ContentMolecule.
-// It can be used to add a node and links to a graph.
+// A MarkdownSection represents a section within a markdown document.
+// It contains the section title, links found in that section, and its heading depth.
 
-export interface ContentAtom {
-  label: string;
+export interface MarkdownSection {
+  title: string;
   hash: string;
-  links: Array<string>;
+  links: string[];
   depth: number;
 }
 
-export interface MoleculeReference {
+// A DocumentReference is a lightweight reference to a markdown document.
+export interface DocumentReference {
   id: string;
   hash: string;
 }
 
-export type GardenConfig = {
+export type RepositoryConfig = {
   content: { [id: string]: string };
   type: "file" | "inmemory";
   path?: string; // Directory path for file repository
 };
 
-export type GardenOptions = Partial<GardenConfig>;
+export type RepositoryOptions = Partial<RepositoryConfig>;
 
-export interface GardenRepository {
-  toMoleculeReference: (id: string) => MoleculeReference;
-  loadContentMolecule: (
-    itemReference: MoleculeReference,
-  ) => Promise<ContentMolecule>;
-  findAll: () => AsyncIterable<MoleculeReference>;
+// Repository interface for accessing markdown documents.
+export interface MarkdownRepository {
+  toDocumentReference: (id: string) => DocumentReference;
+  loadDocument: (reference: DocumentReference) => Promise<MarkdownDocument>;
+  findAll: () => AsyncIterable<DocumentReference>;
 }

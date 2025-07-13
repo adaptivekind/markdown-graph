@@ -1,55 +1,60 @@
 import {
-  ContentAtom,
-  ContentMolecule,
-  GardenOptions,
-  GardenRepository,
-  MoleculeReference,
+  DocumentReference,
+  MarkdownDocument,
+  MarkdownRepository,
+  MarkdownSection,
+  RepositoryOptions,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
-import { parseContentMolecule } from "./markdown";
+import { parseMarkdownDocument } from "./markdown";
 import { toConfig } from "./config";
 import { toRepository } from "./repository-factory";
 
-const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
-  const atoms = parseContentMolecule(molecule);
-  atoms.forEach((atom: ContentAtom) => {
+const enrichGraph = (graph: Graph, document: MarkdownDocument) => {
+  const sections = parseMarkdownDocument(document);
+  sections.forEach((section: MarkdownSection) => {
     const id =
-      molecule.id + (atom.depth == 1 ? "" : "#" + linkResolver(atom.label));
+      document.id +
+      (section.depth == 1 ? "" : "#" + linkResolver(section.title));
     graph.nodes[id] = {
-      label: atom.label,
-      meta: isEmpty(molecule.meta) ? undefined : molecule.meta,
+      label: section.title,
+      meta: isEmpty(document.frontmatter)
+        ? undefined
+        : (document.frontmatter as { [name: string]: string }),
     };
 
-    atom.links.forEach((target) => {
-      graph.links.push({ source: molecule.id, target: target });
+    section.links.forEach((target) => {
+      graph.links.push({ source: document.id, target: target });
     });
   });
 };
 
-const loadContentMolecule = async (
-  repository: GardenRepository,
-  reference: MoleculeReference,
-): Promise<ContentMolecule> => {
-  return await repository.loadContentMolecule(reference);
+const loadMarkdownDocument = async (
+  repository: MarkdownRepository,
+  reference: DocumentReference,
+): Promise<MarkdownDocument> => {
+  return await repository.loadDocument(reference);
 };
 
 // .
-const generateGraph = async (repository: GardenRepository): Promise<Graph> => {
+const generateGraph = async (
+  repository: MarkdownRepository,
+): Promise<Graph> => {
   const graph: Graph = {
     nodes: {},
     links: [],
   };
   for await (const reference of repository.findAll()) {
-    const molecule = await loadContentMolecule(repository, reference);
-    enrichGraph(graph, molecule);
+    const document = await loadMarkdownDocument(repository, reference);
+    enrichGraph(graph, document);
   }
 
   return graph;
 };
 
-export const createGarden = async (options: GardenOptions) => {
+export const createGarden = async (options: RepositoryOptions) => {
   const config = toConfig(options);
   const repository = toRepository(config);
 
