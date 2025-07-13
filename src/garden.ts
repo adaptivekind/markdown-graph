@@ -1,11 +1,12 @@
 import {
+  ContentAtom,
   ContentMolecule,
   GardenConfig,
   GardenOptions,
   GardenRepository,
-  ContentAtom,
 } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
+import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
 import { parseContentMolecule } from "./markdown";
 import { toConfig } from "./config";
@@ -18,7 +19,7 @@ const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
       molecule.id + (atom.depth == 1 ? "" : "#" + linkResolver(atom.label));
     graph.nodes[id] = {
       label: atom.label,
-      meta: molecule.meta,
+      meta: isEmpty(molecule.meta) ? undefined : molecule.meta,
     };
 
     atom.links.forEach((target) => {

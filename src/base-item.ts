@@ -5,13 +5,13 @@ import { MarkdownMessage } from "./mardown-message";
 type Matter = GrayMatterFile<string> & {};
 
 const flattenObject = (
-  obj: any,
+  obj: Record<string, unknown>,
   prefix: string = "",
 ): { [key: string]: string } => {
   const flattened: { [key: string]: string } = {};
 
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const newKey = prefix ? `${prefix}.${key}` : key;
       const value = obj[key];
 
@@ -21,7 +21,10 @@ const flattenObject = (
         !Array.isArray(value)
       ) {
         // Recursively flatten nested objects
-        Object.assign(flattened, flattenObject(value, newKey));
+        Object.assign(
+          flattened,
+          flattenObject(value as Record<string, unknown>, newKey),
+        );
       } else {
         // Convert to string for storage
         flattened[newKey] = String(value);
@@ -44,7 +47,7 @@ const safeMatter = (content: string) => {
     const message =
       error instanceof Error ? error.message : JSON.stringify(error);
     return {
-      data: {} as { [key: string]: any },
+      data: {} as Record<string, unknown>,
       content:
         content +
         new MarkdownMessage("Frontmatter error", message).toMarkdown(),

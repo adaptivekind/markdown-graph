@@ -26,6 +26,7 @@
     "build:watch": "rollup -c --bundleConfigAsCjs --watch",
     "test": "jest --no-watchman",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --no-watchman --coverage",
     "knip": "knip"
   },
   "devDependencies": {
@@ -53,6 +54,7 @@
     "tslib": "^2.8.1"
   },
   "dependencies": {
+    "es-toolkit": "^1.39.7",
     "gray-matter": "^4.0.3",
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",

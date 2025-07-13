@@ -22,6 +22,16 @@ export default {
     ) {
       return;
     }
+
+    // Suppress circular dependency warning from es-toolkit - external dependency issue
+    if (
+      warning.code === "CIRCULAR_DEPENDENCY" &&
+      warning.ids &&
+      warning.ids.some((id) => id.includes("es-toolkit"))
+    ) {
+      return;
+    }
+
     warn(warning);
   },
   plugins: [

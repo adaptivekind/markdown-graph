@@ -1,4 +1,4 @@
-import { ContentMolecule, ContentAtom } from "./types";
+import { ContentAtom, ContentMolecule } from "./types";
 import { Heading, Link, Literal } from "mdast";
 import { Node, Parent } from "unist";
 import { linkResolver } from "./link-resolver";

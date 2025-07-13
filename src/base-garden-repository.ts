@@ -12,7 +12,7 @@ export const toRepository = (config: GardenConfig): GardenRepository => {
 export class BaseGardenRepository implements GardenRepository {
   private content;
 
-  constructor(content: { [key: string]: string } = {}) {
+  constructor(content: { [key: string]: string }) {
     this.content = Object.fromEntries(
       Object.entries(content).map(([key, value]) => [key.toLowerCase(), value]),
     );
@@ -26,11 +26,11 @@ export class BaseGardenRepository implements GardenRepository {
     return id.toLowerCase();
   }
 
-  toMoleculeReference(id: string) {
-    const matchName = /([^/]*).md$/.exec(id);
+  toMoleculeReference(filename: string) {
+    const matchName = /([^/]*).md$/.exec(filename);
     return {
-      id: this.normaliseName(matchName ? matchName[1] : id),
-      hash: hash(id),
+      id: this.normaliseName(matchName ? matchName[1] : filename),
+      hash: hash(filename),
     };
   }
 
