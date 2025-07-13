@@ -45,3 +45,6 @@ This is a TypeScript library for generating graphs from markdown repositories. T
 - The codebase uses ES modules (`"type": "module"` in package.json)
 - Gray-matter caching is explicitly disabled by setting language option
 - Strict TypeScript configuration with isolated modules
+- Sort typescript imports by putting multiples first. Single import starting
+  with a capital letter should be listed before single imports starting with a
+  lower case.

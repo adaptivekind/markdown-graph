@@ -1,6 +1,5 @@
 import { Graph } from "@adaptivekind/graph-schema";
-import { toConfig } from "./config";
-// eslint-disable-next-line sort-imports
+
 import { GraphBuilder } from "./graph-builder";
 import { toRepository } from "./repository-factory";
 // eslint-disable-next-line sort-imports
@@ -24,8 +23,7 @@ async function generateGraph(repository: MarkdownRepository): Promise<Graph> {
  * Create a garden (graph) from repository options
  */
 export async function createGarden(options: RepositoryOptions) {
-  const config = toConfig(options);
-  const repository = toRepository(config);
+  const repository = toRepository(options);
 
   return {
     graph: await generateGraph(repository),
