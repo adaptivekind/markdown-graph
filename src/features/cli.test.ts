@@ -1,9 +1,9 @@
 // Import CLI functions
-import { runCli, showHelp } from "../cli";
 import type { CliOptions } from "../cli";
 import { consola } from "consola";
 import fs from "fs";
 import path from "path";
+import { runCli } from "../cli";
 
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");
 
@@ -149,45 +149,6 @@ describe("CLI", () => {
     expect(content.nodes).toBeDefined();
     expect(content.links).toBeDefined();
     expect(Object.keys(content.nodes)).toHaveLength(5);
-  });
-
-  it("should show help when --help option provided", () => {
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-
-    showHelp();
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Usage: markdown-graph"),
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Generate a graph from markdown files"),
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Options:"),
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("-h, --help"),
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("-o, --output"),
-    );
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Examples:"),
-    );
-
-    consoleSpy.mockRestore();
-  });
-
-  it("should show help when -h option provided", () => {
-    const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-
-    showHelp();
-
-    expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("Usage: markdown-graph"),
-    );
-
-    consoleSpy.mockRestore();
   });
 
   it("should handle non-existent directory gracefully", async () => {

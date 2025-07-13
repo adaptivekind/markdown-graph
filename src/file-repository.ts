@@ -16,8 +16,13 @@ import type {
   MarkdownRepository,
 } from "./types";
 
+/**
+ * Configuration options for FileRepository
+ */
 export interface FileRepositoryOptions {
+  /** Directory patterns to exclude from scanning */
   excludes?: string[];
+  /** Whether to include hidden files and directories */
   includeHidden?: boolean;
 }
 
@@ -29,6 +34,26 @@ class FileDocumentReference implements DocumentReference {
   ) {}
 }
 
+/**
+ * File system based repository for accessing markdown documents
+ *
+ * Scans a directory recursively for markdown files and provides access
+ * to their content. Supports filtering options to exclude certain directories
+ * and control hidden file inclusion.
+ *
+ * @example
+ * ```typescript
+ * const repository = new FileRepository('./docs', {
+ *   excludes: ['node_modules', 'dist'],
+ *   includeHidden: false
+ * });
+ *
+ * for await (const ref of repository.findAll()) {
+ *   const document = await repository.loadDocument(ref);
+ *   console.log(document.content);
+ * }
+ * ```
+ */
 export class FileRepository implements MarkdownRepository {
   private readonly options: Required<FileRepositoryOptions>;
 
@@ -72,11 +97,12 @@ export class FileRepository implements MarkdownRepository {
     try {
       const content = await fs.promises.readFile(filepath, "utf8");
       return new BaseItem(reference, reference.filename, content);
-    } catch (error) {
+    } catch (error: unknown) {
       if (
-        error instanceof Error &&
+        error &&
+        typeof error === "object" &&
         "code" in error &&
-        error.code === "ENOENT"
+        (error as { code: string }).code === "ENOENT"
       ) {
         throw new FileNotFoundError(filepath);
       }

@@ -5,6 +5,22 @@ import { parseMarkdownDocument } from "./markdown";
 // eslint-disable-next-line sort-imports
 import type { MarkdownDocument, MarkdownSection } from "./types";
 
+/**
+ * Builder class for constructing graph structures from markdown documents
+ *
+ * The GraphBuilder follows the builder pattern, allowing incremental construction
+ * of a graph by adding markdown documents one at a time. It handles the conversion
+ * of markdown content into nodes and links in the graph structure.
+ *
+ * @example
+ * ```typescript
+ * const builder = new GraphBuilder();
+ * builder.addDocument(document1)
+ *        .addDocument(document2)
+ *        .addDocument(document3);
+ * const graph = builder.build();
+ * ```
+ */
 export class GraphBuilder {
   private graph: Graph = {
     nodes: {},
@@ -13,6 +29,13 @@ export class GraphBuilder {
 
   /**
    * Add a markdown document to the graph
+   *
+   * Parses the document content to extract sections and creates corresponding
+   * nodes and links in the graph. Each section becomes a node, and wiki-style
+   * links ([[target]]) become edges in the graph.
+   *
+   * @param document - The markdown document to add
+   * @returns this - For method chaining
    */
   addDocument(document: MarkdownDocument): this {
     const sections = parseMarkdownDocument(document);
@@ -84,7 +107,12 @@ export class GraphBuilder {
   }
 
   /**
-   * Get the current graph state
+   * Build and return the current graph state
+   *
+   * Returns a deep copy of the current graph to prevent external mutations.
+   * The returned graph contains all nodes and links added through addDocument().
+   *
+   * @returns A copy of the current graph structure
    */
   build(): Graph {
     return {
@@ -95,6 +123,11 @@ export class GraphBuilder {
 
   /**
    * Reset the builder to start fresh
+   *
+   * Clears all nodes and links from the current graph, allowing the builder
+   * to be reused for constructing a new graph from scratch.
+   *
+   * @returns this - For method chaining
    */
   reset(): this {
     this.graph = {
@@ -106,6 +139,11 @@ export class GraphBuilder {
 
   /**
    * Get statistics about the current graph
+   *
+   * Returns count information about the current state of the graph,
+   * useful for monitoring progress during graph construction.
+   *
+   * @returns Object containing node and link counts
    */
   getStats(): { nodeCount: number; linkCount: number } {
     return {

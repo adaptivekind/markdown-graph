@@ -1,11 +1,9 @@
-import { RepositoryConfigurationError } from "./errors";
-// eslint-disable-next-line sort-imports
+import type { MarkdownRepository, RepositoryOptions } from "./types";
 import { FileRepository } from "./file-repository";
 import { InMemoryRepository } from "./memory-repository";
-// eslint-disable-next-line sort-imports
-import type { MarkdownRepository, RepositoryConfig } from "./types";
+import { RepositoryConfigurationError } from "./errors";
 
-export function toRepository(config: RepositoryConfig): MarkdownRepository {
+export function toRepository(config: RepositoryOptions): MarkdownRepository {
   if (config.type === "file") {
     if (!config.path) {
       throw new RepositoryConfigurationError(
