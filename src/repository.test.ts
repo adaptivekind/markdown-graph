@@ -246,9 +246,9 @@ This is test content.`;
       fs.writeFileSync(path.join(tempDir, "visible.md"), "# Visible");
       fs.writeFileSync(path.join(hiddenDir, "hidden.md"), "# Hidden");
 
-      const repo = new FileRepository(tempDir, { includeHidden: true });
+      const repository = new FileRepository(tempDir, { includeHidden: true });
       const references = [];
-      for await (const ref of repo.findAll()) {
+      for await (const ref of repository.findAll()) {
         references.push(ref);
       }
 
@@ -263,8 +263,8 @@ This is test content.`;
 describe("InMemoryRepository", () => {
   describe("constructor", () => {
     it("should create empty repository", () => {
-      const repo = new InMemoryRepository({});
-      expect(repo.size()).toBe(0);
+      const repository = new InMemoryRepository({});
+      expect(repository.size()).toBe(0);
     });
 
     it("should create repository with content", () => {
@@ -272,8 +272,8 @@ describe("InMemoryRepository", () => {
         doc1: "# Document 1",
         doc2: "# Document 2",
       };
-      const repo = new InMemoryRepository(content);
-      expect(repo.size()).toBe(2);
+      const repository = new InMemoryRepository(content);
+      expect(repository.size()).toBe(2);
     });
 
     it("should normalize keys to lowercase", () => {
@@ -281,12 +281,12 @@ describe("InMemoryRepository", () => {
         DOC1: "# Document 1",
         Doc2: "# Document 2",
       };
-      const repo = new InMemoryRepository(content);
+      const repository = new InMemoryRepository(content);
 
-      expect(repo.hasDocument("doc1")).toBe(true);
-      expect(repo.hasDocument("doc2")).toBe(true);
-      expect(repo.hasDocument("DOC1")).toBe(true);
-      expect(repo.hasDocument("Doc2")).toBe(true);
+      expect(repository.hasDocument("doc1")).toBe(true);
+      expect(repository.hasDocument("doc2")).toBe(true);
+      expect(repository.hasDocument("DOC1")).toBe(true);
+      expect(repository.hasDocument("Doc2")).toBe(true);
     });
   });
 
