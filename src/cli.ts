@@ -165,7 +165,7 @@ const main = () => {
   });
 
   if (!result.success) {
-    process.exit(1);
+    throw new Error("Could not generate graph");
   }
 };
 
