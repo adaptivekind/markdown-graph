@@ -1,9 +1,8 @@
+import type { MarkdownDocument, MarkdownSection } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
 import { parseMarkdownDocument } from "./markdown";
-// eslint-disable-next-line sort-imports
-import type { MarkdownDocument, MarkdownSection } from "./types";
 
 /**
  * Builder class for constructing graph structures from markdown documents

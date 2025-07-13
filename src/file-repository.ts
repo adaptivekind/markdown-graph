@@ -1,20 +1,17 @@
-import fs from "fs";
-import path from "path";
-// eslint-disable-next-line sort-imports
-import { BaseItem } from "./base-item";
-// eslint-disable-next-line sort-imports
 import {
   DirectoryNotFoundError,
   FileNotFoundError,
   MarkdownParsingError,
 } from "./errors";
-import { hash } from "./hash";
-// eslint-disable-next-line sort-imports
 import type {
   DocumentReference,
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
+import { BaseItem } from "./base-item";
+import fs from "fs";
+import { hash } from "./hash";
+import path from "path";
 
 /**
  * Configuration options for FileRepository

@@ -1,9 +1,7 @@
+import type { MarkdownRepository, RepositoryOptions } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
-
 import { GraphBuilder } from "./graph-builder";
 import { toRepository } from "./repository-factory";
-// eslint-disable-next-line sort-imports
-import type { MarkdownRepository, RepositoryOptions } from "./types";
 
 /**
  * Generate a graph from a markdown repository using the GraphBuilder

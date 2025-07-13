@@ -1,12 +1,11 @@
-import { BaseItem } from "./base-item";
-import { DocumentNotFoundError } from "./errors";
-import { hash } from "./hash";
-// eslint-disable-next-line sort-imports
 import type {
   DocumentReference,
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
+import { BaseItem } from "./base-item";
+import { DocumentNotFoundError } from "./errors";
+import { hash } from "./hash";
 
 class InMemoryDocumentReference implements DocumentReference {
   constructor(
