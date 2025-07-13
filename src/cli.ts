@@ -116,7 +116,7 @@ export const runCli = (options: CliOptions = {}): CliResult => {
   }
 };
 
-const main = () => {
+const main = (): boolean => {
   const args = process.argv.slice(2);
   const options = {
     targetDirectory: process.cwd(),
@@ -131,13 +131,13 @@ const main = () => {
 
     if (arg === "-h" || arg === "--help") {
       showHelp();
-      process.exit(0);
+      return true;
     }
 
     if (arg === "-o" || arg === "--output") {
       if (i + 1 >= args.length) {
         consola.error("Output option requires a filename");
-        process.exit(1);
+        return false;
       }
       options.outputFile = args[++i];
       continue;
@@ -160,10 +160,10 @@ const main = () => {
   }
 
   const result = runCli(options);
-
-  if (!result.success) {
-    throw new Error("Could not generate graph");
-  }
+  return result.success;
 };
 
-main();
+const success = main();
+if (!success) {
+  process.exit(1);
+}
