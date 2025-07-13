@@ -34,4 +34,8 @@ export class BaseGardenRepository implements GardenRepository {
     }
     throw `Cannot load ${id} since does not exist in ${this.description()}`;
   }
+
+  findAll(): MoleculeReference[] {
+    return Object.keys(this.content).map(this.toMoleculeReference.bind(this));
+  }
 }

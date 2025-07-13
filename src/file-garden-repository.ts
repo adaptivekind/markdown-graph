@@ -53,10 +53,9 @@ export class FileGardenRepository extends BaseGardenRepository {
     return new BaseItem(reference, `${id}.md`, content);
   }
 
-  // Method to get list of available files
-  getAvailableFiles(): string[] {
+  findAll(): MoleculeReference[] {
     const files = fs.readdirSync(this.directory);
     const markdownFiles = files.filter((file) => file.endsWith(".md"));
-    return markdownFiles.map((file) => this.normalizeName(file));
+    return markdownFiles.map(this.toMoleculeReference.bind(this));
   }
 }
