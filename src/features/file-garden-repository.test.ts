@@ -1,6 +1,7 @@
 import path from "path";
-import { createGarden } from "../garden";
+// eslint-disable-next-line sort-imports
 import { Graph } from "@adaptivekind/graph-schema";
+import { createGarden } from "../garden";
 
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");
 

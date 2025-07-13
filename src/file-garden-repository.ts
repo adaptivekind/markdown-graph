@@ -1,14 +1,18 @@
 import fs from "fs";
 import path from "path";
-import { GardenRepository, MoleculeReference } from "./types";
+// eslint-disable-next-line sort-imports
+import { BaseGardenRepository } from "./base-garden-repository";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
+// eslint-disable-next-line sort-imports
+import type { MoleculeReference } from "./types";
 
-export class FileGardenRepository implements GardenRepository {
+export class FileGardenRepository extends BaseGardenRepository {
   private directoryPath: string;
   private fileCache: Map<string, string> = new Map();
 
   constructor(directoryPath: string) {
+    super({});
     this.directoryPath = directoryPath;
     this.loadMarkdownFiles();
   }

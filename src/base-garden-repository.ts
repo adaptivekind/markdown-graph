@@ -1,17 +1,6 @@
-import { GardenConfig, GardenRepository, MoleculeReference } from "./types";
+import { GardenRepository, MoleculeReference } from "./types";
 import { BaseItem } from "./base-item";
 import { hash } from "./hash";
-import { FileGardenRepository } from "./file-garden-repository";
-
-export const toRepository = (config: GardenConfig): GardenRepository => {
-  if (config.type === "file") {
-    if (!config.path) {
-      throw new Error("File repository requires a path to be specified");
-    }
-    return new FileGardenRepository(config.path);
-  }
-  return new BaseGardenRepository(config.content);
-};
 
 export class BaseGardenRepository implements GardenRepository {
   private content;

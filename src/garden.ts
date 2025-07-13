@@ -10,7 +10,7 @@ import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
 import { parseContentMolecule } from "./markdown";
 import { toConfig } from "./config";
-import { toRepository } from "./base-garden-repository";
+import { toRepository } from "./repository-factory";
 
 const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
   const atoms = parseContentMolecule(molecule);
@@ -47,7 +47,7 @@ const generateGraph = (
 
   if (config.type === "file") {
     // For file repositories, get available files from the repository
-    const files = (repository as any).getAvailableFiles();
+    const files = repository.getAvailableFiles?.() || [];
     for (const id of files) {
       enrichGraph(graph, loadContentMolecule(repository, `${id}.md`));
     }
