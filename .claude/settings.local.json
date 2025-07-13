@@ -13,7 +13,10 @@
       "Bash(npm run eslint:fix:*)",
       "Bash(npx eslint:*)",
       "Bash(find:*)",
-      "Bash(npm run eslint:*)"
+      "Bash(npm run eslint:*)",
+      "Bash(node dist/cli.js --help)",
+      "Bash(node:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

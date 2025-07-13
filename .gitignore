@@ -2,5 +2,7 @@ dist/
 node_modules/
 .rollup.cache/
 coverage/
+.garden-graph.json
+*.json.tmp
 
 tsconfig.tsbuildinfo
