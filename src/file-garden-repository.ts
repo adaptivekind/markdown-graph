@@ -9,27 +9,16 @@ import type { MoleculeReference } from "./types";
 
 export class FileGardenRepository extends BaseGardenRepository {
   private directoryPath: string;
-  private fileCache: Map<string, string> = new Map();
 
   constructor(directoryPath: string) {
     super({});
     this.directoryPath = directoryPath;
-    this.loadMarkdownFiles();
+    this.validateDirectory();
   }
 
-  private loadMarkdownFiles(): void {
+  private validateDirectory(): void {
     if (!fs.existsSync(this.directoryPath)) {
       throw new Error(`Directory does not exist: ${this.directoryPath}`);
-    }
-
-    const files = fs.readdirSync(this.directoryPath);
-    const markdownFiles = files.filter((file) => file.endsWith(".md"));
-
-    for (const file of markdownFiles) {
-      const filePath = path.join(this.directoryPath, file);
-      const content = fs.readFileSync(filePath, "utf-8");
-      const id = this.normalizeName(file);
-      this.fileCache.set(id, content);
     }
   }
 
@@ -52,25 +41,22 @@ export class FileGardenRepository extends BaseGardenRepository {
 
   loadContentMolecule(reference: MoleculeReference) {
     const id = reference.id;
-    const content = this.fileCache.get(id);
+    const filePath = path.join(this.directoryPath, `${id}.md`);
 
-    if (content === undefined) {
+    if (!fs.existsSync(filePath)) {
       throw new Error(
         `Cannot load ${id} since it does not exist in ${this.description()}`,
       );
     }
 
+    const content = fs.readFileSync(filePath, "utf-8");
     return new BaseItem(reference, `${id}.md`, content);
-  }
-
-  // Method to refresh the file cache (useful for watching file changes)
-  refresh(): void {
-    this.fileCache.clear();
-    this.loadMarkdownFiles();
   }
 
   // Method to get list of available files
   getAvailableFiles(): string[] {
-    return Array.from(this.fileCache.keys());
+    const files = fs.readdirSync(this.directoryPath);
+    const markdownFiles = files.filter((file) => file.endsWith(".md"));
+    return markdownFiles.map((file) => this.normalizeName(file));
   }
 }
