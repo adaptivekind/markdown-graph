@@ -6,6 +6,9 @@ export interface ContentMolecule {
   filename?: string;
   hash: string;
   content: string;
+  meta: {
+    [name: string]: string;
+  };
 }
 
 // A ContentAtom is meta data that describes each part of the ContentMolecule.

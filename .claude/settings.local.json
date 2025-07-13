@@ -4,7 +4,8 @@
       "Bash(npm test)",
       "Bash(mkdir:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run knip:*)"
+      "Bash(npm run knip:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

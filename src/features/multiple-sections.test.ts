@@ -11,7 +11,7 @@ foo content
 foo section content
 `;
 
-describe("generate graph", () => {
+describe("multiple sections", () => {
   it("content with multiple sections should have multiple notes", async () => {
     const graph: Graph = graphFrom({
       foo,

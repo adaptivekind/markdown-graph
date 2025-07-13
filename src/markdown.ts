@@ -53,7 +53,7 @@ const extractSectionTitle = (section: Section) => {
   return extractTextFromNode(firstHeading, isRegularTextNode);
 };
 
-const convertMarkdownToSections = (markdownSyntaxTree: Parent) => {
+const toSections = (markdownSyntaxTree: Parent) => {
   const sections: Section[] = [
     { children: [], sections: [], depth: 1, title: "title-not-set" },
   ];
@@ -168,7 +168,7 @@ export const parseContentMolecule = (
     .use(remarkParse)
     .parse(molecule.content);
 
-  return convertMarkdownToSections(markdownSyntaxTree).map((section) =>
+  return toSections(markdownSyntaxTree).map((section) =>
     toContentAtom(molecule, section),
   );
 };

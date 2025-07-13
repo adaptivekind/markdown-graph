@@ -18,6 +18,7 @@ const enrichGraph = (graph: Graph, molecule: ContentMolecule) => {
       molecule.id + (atom.depth == 1 ? "" : "#" + linkResolver(atom.label));
     graph.nodes[id] = {
       label: atom.label,
+      meta: molecule.meta,
     };
 
     atom.links.forEach((target) => {

@@ -9,14 +9,14 @@ const safeMatter = (content: string) => {
     // Note that the gray matter API caches the results if there are no options.
     // In this system, caching is undesirable since it masks potential errors
     // and complicates reloading. Explicitly setting the language for the
-    // frontmatter, other than setting our desired front matter also has the
+    // frontmatter, other than setting our desired frontmatter also has the
     // desired side effect that caching is disabled.
     return matter(content, { language: "yaml" }) as Matter;
   } catch (error) {
     const message =
       error instanceof Error ? error.message : JSON.stringify(error);
     return {
-      data: { tags: [] },
+      data: {} as { [key: string]: any },
       content:
         content +
         new MarkdownMessage("Frontmatter error", message).toMarkdown(),
@@ -29,6 +29,9 @@ export class BaseItem implements ContentMolecule {
   filename: string;
   content: string;
   hash: string;
+  meta: {
+    [name: string]: string;
+  } = {};
 
   constructor(
     itemReference: MoleculeReference,
@@ -40,6 +43,10 @@ export class BaseItem implements ContentMolecule {
     this.hash = itemReference.hash;
 
     const itemMatter = safeMatter(content);
+
+    Object.keys(itemMatter.data).forEach((key: string) => {
+      this.meta[key] = `${itemMatter.data[key]}`;
+    });
     this.content = itemMatter.content;
   }
 }
