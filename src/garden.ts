@@ -1,7 +1,6 @@
 import {
   ContentAtom,
   ContentMolecule,
-  GardenConfig,
   GardenOptions,
   GardenRepository,
   MoleculeReference,
@@ -36,10 +35,8 @@ const loadContentMolecule = (
   return repository.loadContentMolecule(reference);
 };
 
-const generateGraph = (
-  repository: GardenRepository,
-  config: GardenConfig,
-): Graph => {
+// .
+const generateGraph = (repository: GardenRepository): Graph => {
   const graph: Graph = {
     nodes: {},
     links: [],
@@ -56,6 +53,6 @@ export const createGarden = (options: GardenOptions) => {
   const repository = toRepository(config);
 
   return {
-    graph: generateGraph(repository, config),
+    graph: generateGraph(repository),
   };
 };
