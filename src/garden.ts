@@ -41,9 +41,8 @@ const generateGraph = async (repository: GardenRepository): Promise<Graph> => {
     nodes: {},
     links: [],
   };
-  const references = await repository.findAll();
-  for (const itemReference of references) {
-    const molecule = await loadContentMolecule(repository, itemReference);
+  for await (const reference of repository.findAll()) {
+    const molecule = await loadContentMolecule(repository, reference);
     enrichGraph(graph, molecule);
   }
 

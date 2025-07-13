@@ -35,7 +35,9 @@ export class BaseGardenRepository implements GardenRepository {
     throw `Cannot load ${id} since does not exist in ${this.description()}`;
   }
 
-  async findAll(): Promise<MoleculeReference[]> {
-    return Object.keys(this.content).map(this.toMoleculeReference.bind(this));
+  async *findAll(): AsyncIterable<MoleculeReference> {
+    for (const key in this.content) {
+      yield this.toMoleculeReference(key);
+    }
   }
 }

@@ -39,5 +39,5 @@ export interface GardenRepository {
   loadContentMolecule: (
     itemReference: MoleculeReference,
   ) => Promise<ContentMolecule>;
-  findAll: () => Promise<MoleculeReference[]>;
+  findAll: () => AsyncIterable<MoleculeReference>;
 }

@@ -7,6 +7,28 @@ import { hash } from "./hash";
 // eslint-disable-next-line sort-imports
 import type { MoleculeReference } from "./types";
 
+export class FileItemReference implements MoleculeReference {
+  id: string;
+  filename;
+  hash;
+
+  constructor(id: string, filename: string) {
+    this.id = id;
+    this.filename = filename;
+    this.hash = hash(filename);
+  }
+}
+
+export class FileItem extends BaseItem {
+  constructor(reference: FileItemReference, directory: string) {
+    const content = fs.readFileSync(
+      path.join(directory, reference.filename),
+      "utf8",
+    );
+    super(reference, reference.filename, content);
+  }
+}
+
 export class FileGardenRepository extends BaseGardenRepository {
   private directory: string;
   private excludes = ["node_modules", "dist"];
@@ -35,37 +57,18 @@ export class FileGardenRepository extends BaseGardenRepository {
   }
 
   toMoleculeReference(filename: string): MoleculeReference {
-    return {
-      id: this.normalizeName(filename),
-      hash: hash(filename),
-    };
+    return new FileItemReference(this.normalizeName(filename), filename);
   }
 
   async loadContentMolecule(reference: MoleculeReference) {
-    const id = reference.id;
-
-    // Find the original file path by searching through all markdown files
-    const allFiles = await this.findMarkdownFilesRecursively(this.directory);
-    const originalFile = allFiles.find(
-      (file) => this.normalizeName(file) === id,
-    );
-
-    if (!originalFile) {
-      throw new Error(
-        `Cannot load ${id} since it does not exist in ${this.description()}`,
-      );
+    if (reference instanceof FileItemReference) {
+      return new FileItem(reference, this.directory);
     }
-
-    const filePath = path.join(this.directory, originalFile);
-    const content = await fs.promises.readFile(filePath, "utf-8");
-    return new BaseItem(reference, originalFile, content);
+    return super.loadContentMolecule(reference);
   }
 
-  async findAll(): Promise<MoleculeReference[]> {
-    const markdownFiles = await this.findMarkdownFilesRecursively(
-      this.directory,
-    );
-    return markdownFiles.map(this.toMoleculeReference.bind(this));
+  async *findAll() {
+    yield* this.findMarkdownFilesRecursively(this.directory);
   }
 
   private shouldScanDirectory(relativeDirectoryName: string) {
@@ -75,8 +78,9 @@ export class FileGardenRepository extends BaseGardenRepository {
     );
   }
 
-  private async findMarkdownFilesRecursively(dir: string): Promise<string[]> {
-    const files: string[] = [];
+  private async *findMarkdownFilesRecursively(
+    dir: string,
+  ): AsyncIterable<MoleculeReference> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -85,16 +89,11 @@ export class FileGardenRepository extends BaseGardenRepository {
       if (entry.isDirectory()) {
         if (this.shouldScanDirectory(entry.name)) {
           // Recursively scan subdirectories
-          const subFiles = await this.findMarkdownFilesRecursively(fullPath);
-          files.push(...subFiles);
+          yield* this.findMarkdownFilesRecursively(fullPath);
         }
       } else if (entry.isFile() && entry.name.endsWith(".md")) {
-        // Get relative path from the repository root directory
-        const relativePath = path.relative(this.directory, fullPath);
-        files.push(relativePath);
+        yield this.toMoleculeReference(path.relative(this.directory, fullPath));
       }
     }
-
-    return files;
   }
 }
