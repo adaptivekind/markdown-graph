@@ -1,5 +1,4 @@
-import { BaseItem } from "../base-item";
-import { createRepository } from "../repository";
+import { createGarden } from "../garden";
 
-export const graphFrom = async (content: { [key: string]: string }) =>
-  createRepository({ content, type: "inmemory" }).graph;
+export const graphFrom = (content: { [key: string]: string }) =>
+  createGarden({ content, type: "inmemory" }).graph;

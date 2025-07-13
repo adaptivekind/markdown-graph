@@ -1,30 +1,39 @@
-export interface Item {
-  name: string;
+// A ContentMolecule is a block of content. It may lead to the addition of
+// multiple nodes and links to a graph.
+
+export interface ContentMolecule {
+  id: string;
   filename?: string;
   hash: string;
   content: string;
+  meta: {
+    [name: string]: string;
+  };
 }
 
-export interface ItemReference {
-  name: string;
+// A ContentAtom is meta data that describes each part of the ContentMolecule.
+// It can be used to add a node and links to a graph.
+
+export interface ContentAtom {
+  label: string;
+  hash: string;
+  links: Array<string>;
+  depth: number;
+}
+
+export interface MoleculeReference {
+  id: string;
   hash: string;
 }
 
-export type MetaData = {
-  tags?: string[];
+export type GardenConfig = {
+  content: { [id: string]: string };
+  type: "file" | "inmemory";
 };
 
-export type RepositoryType = "file" | "inmemory";
+export type GardenOptions = Partial<GardenConfig>;
 
-export type RepositoryConfig = {
-  content: { [key: string]: string };
-  type: RepositoryType;
-};
-
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
-
-export type RepositoryOptions = DeepPartial<RepositoryConfig>;
+export interface GardenRepository {
+  toMoleculeReference: (id: string) => MoleculeReference;
+  loadContentMolecule: (itemReference: MoleculeReference) => ContentMolecule;
+}
