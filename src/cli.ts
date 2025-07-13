@@ -69,6 +69,8 @@ export const runCli = (options: CliOptions = {}): CliResult => {
       : path.join(process.cwd(), providedOutputFile)
     : path.join(targetDirectory, ".garden-graph.json");
 
+  const startTime = performance.now();
+
   try {
     // Check if target directory exists
     if (!fs.existsSync(targetDirectory)) {
@@ -99,7 +101,9 @@ export const runCli = (options: CliOptions = {}): CliResult => {
     // Write graph to JSON file
     fs.writeFileSync(outputFile, JSON.stringify(garden.graph, null, 2));
 
-    const message = `Graph generated and written to ${outputFile}`;
+    const endTime = performance.now();
+    const duration = Math.round(endTime - startTime);
+    const message = `Graph generated and written to ${outputFile} (${duration}ms)`;
     consola.success(message);
 
     return {
