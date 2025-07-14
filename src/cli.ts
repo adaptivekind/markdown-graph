@@ -38,6 +38,86 @@ interface ProcessedCliOptions {
   debounceMs?: number;
 }
 
+// Logging levels for different modes
+const LOG_LEVELS = {
+  QUIET: 0, // Only fatal errors
+  DEFAULT: 3, // Info, warn, error, success
+  VERBOSE: 4, // All logs including debug
+} as const;
+
+// Default configuration values
+const DEFAULT_CONFIG = {
+  targetDirectory: () => process.cwd(),
+  outputFileName: ".garden-graph.json",
+} as const;
+
+/**
+ * Merge CLI options with config file values, prioritizing CLI options
+ */
+function mergeOptionsWithConfig(options: CliOptions): {
+  targetDirectory: string;
+  verbose: boolean;
+  quiet: boolean;
+  providedOutputFile?: string;
+} {
+  const config = loadConfig(options);
+  validateConfig(config);
+
+  return {
+    targetDirectory:
+      options.targetDirectory ||
+      config.targetDirectory ||
+      DEFAULT_CONFIG.targetDirectory(),
+    providedOutputFile: options.outputFile,
+    verbose:
+      options.verbose !== undefined ? options.verbose : config.verbose || false,
+    quiet: options.quiet !== undefined ? options.quiet : config.quiet || false,
+  };
+}
+
+/**
+ * Configure console logging level based on verbose and quiet flags
+ */
+function configureLogging(verbose: boolean, quiet: boolean): void {
+  if (quiet) {
+    consola.level = LOG_LEVELS.QUIET;
+  } else if (verbose) {
+    consola.level = LOG_LEVELS.VERBOSE;
+  } else {
+    consola.level = LOG_LEVELS.DEFAULT;
+  }
+}
+
+/**
+ * Resolve the output file path from user input or generate default
+ */
+function resolveOutputFilePath(
+  providedOutputFile: string | undefined,
+  targetDirectory: string,
+): string {
+  if (!providedOutputFile) {
+    return path.join(targetDirectory, DEFAULT_CONFIG.outputFileName);
+  }
+
+  return path.isAbsolute(providedOutputFile)
+    ? providedOutputFile
+    : path.join(process.cwd(), providedOutputFile);
+}
+
+/**
+ * Validate target directory exists if checking is enabled
+ */
+function validateTargetDirectory(
+  targetDirectory: string,
+  checkDirectory: boolean,
+): void {
+  if (checkDirectory && !fs.existsSync(targetDirectory)) {
+    const message = `Directory does not exist: ${targetDirectory}`;
+    consola.error(message);
+    throw new Error(message);
+  }
+}
+
 /**
  * Process and validate CLI options and configure logging
  */
@@ -45,41 +125,12 @@ function processCliOptions(
   options: CliOptions = {},
   checkDirectory = true,
 ): ProcessedCliOptions {
-  // Load and validate configuration
-  const config = loadConfig(options);
-  validateConfig(config);
+  const mergedOptions = mergeOptionsWithConfig(options);
+  const { targetDirectory, verbose, quiet, providedOutputFile } = mergedOptions;
 
-  // Use CLI options as priority, then config, then defaults
-  const targetDirectory =
-    options.targetDirectory || config.targetDirectory || process.cwd();
-  const providedOutputFile = options.outputFile;
-  const verbose =
-    options.verbose !== undefined ? options.verbose : config.verbose || false;
-  const quiet =
-    options.quiet !== undefined ? options.quiet : config.quiet || false;
-
-  // Configure logger based on flags
-  if (quiet) {
-    consola.level = 0; // Only fatal errors
-  } else if (verbose) {
-    consola.level = 4; // All logs including debug
-  } else {
-    consola.level = 3; // Default: info, warn, error, success
-  }
-
-  // Default output file goes in the target directory
-  const outputFile = providedOutputFile
-    ? path.isAbsolute(providedOutputFile)
-      ? providedOutputFile
-      : path.join(process.cwd(), providedOutputFile)
-    : path.join(targetDirectory, ".garden-graph.json");
-
-  // Check if target directory exists (optional for different error handling needs)
-  if (checkDirectory && !fs.existsSync(targetDirectory)) {
-    const message = `Directory does not exist: ${targetDirectory}`;
-    consola.error(message);
-    throw new Error(message);
-  }
+  configureLogging(verbose, quiet);
+  const outputFile = resolveOutputFilePath(providedOutputFile, targetDirectory);
+  validateTargetDirectory(targetDirectory, checkDirectory);
 
   return {
     targetDirectory,

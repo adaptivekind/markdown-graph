@@ -53,56 +53,127 @@ const extractSectionTitle = (section: Section) => {
   return extractTextFromNode(firstHeading, isRegularTextNode);
 };
 
-const toSections = (markdownSyntaxTree: Parent) => {
-  const sections: Section[] = [
-    { children: [], sections: [], depth: 1, title: "title-not-set" },
-  ];
-  let totalSectionCount = 1;
-  let currentHeadingDepth = 1;
-  let hasFoundMainHeading = false;
-  let shouldSkipNode;
-  const nestedSectionStack: Section[] = new Array<Section>(6);
-  nestedSectionStack[0] = sections[0];
+// Maximum heading depth supported (h1 through h6)
+const MAX_HEADING_DEPTH = 6;
+
+interface SectionParsingState {
+  sections: Section[];
+  sectionCount: number;
+  currentHeadingDepth: number;
+  foundMainHeading: boolean;
+  nestedSectionStack: Section[];
+}
+
+/**
+ * Initialize the parsing state with a root section
+ */
+const initializeSectionParsingState = (): SectionParsingState => {
+  const rootSection: Section = {
+    children: [],
+    sections: [],
+    depth: 1,
+    title: "title-not-set",
+  };
+
+  const nestedSectionStack = new Array<Section>(MAX_HEADING_DEPTH);
+  nestedSectionStack[0] = rootSection;
+
+  return {
+    sections: [rootSection],
+    sectionCount: 1,
+    currentHeadingDepth: 1,
+    foundMainHeading: false,
+    nestedSectionStack,
+  };
+};
+
+/**
+ * Check if a node is a heading and update parsing state accordingly
+ */
+const processHeadingNode = (
+  node: Node,
+  state: SectionParsingState,
+): boolean => {
+  if (!("depth" in node)) {
+    return false; // Not skipping, process normally
+  }
+
+  const headingDepth = (node as Heading).depth;
+
+  if (headingDepth > 1) {
+    if (state.foundMainHeading) {
+      state.sectionCount++;
+      state.currentHeadingDepth = headingDepth;
+      return false; // Don't skip
+    } else {
+      return true; // Skip this node - we haven't found main heading yet
+    }
+  } else {
+    // This is an h1 heading
+    state.currentHeadingDepth = 1;
+    state.foundMainHeading = true;
+    return false; // Don't skip
+  }
+};
+
+/**
+ * Create new sections as needed to match the current section count
+ */
+const ensureSectionsExist = (state: SectionParsingState): void => {
+  while (state.sections.length < state.sectionCount) {
+    const newSection: Section = {
+      children: [],
+      sections: [],
+      depth: state.currentHeadingDepth,
+      title: "section-title-not-set",
+    };
+
+    state.sections.push(newSection);
+    state.nestedSectionStack[state.currentHeadingDepth - 1] = newSection;
+
+    // Link to parent section if this is a nested section
+    if (state.currentHeadingDepth > 1) {
+      const parentSection =
+        state.nestedSectionStack[state.currentHeadingDepth - 2];
+      if (parentSection) {
+        parentSection.sections.push(newSection);
+      }
+    }
+  }
+};
+
+/**
+ * Get the target section for adding the current node
+ */
+const getTargetSection = (state: SectionParsingState): Section => {
+  return state.currentHeadingDepth === 1
+    ? state.sections[0]
+    : state.sections[state.sectionCount - 1];
+};
+
+/**
+ * Extract sections from markdown syntax tree
+ */
+const toSections = (markdownSyntaxTree: Parent): Section[] => {
+  const state = initializeSectionParsingState();
+
   markdownSyntaxTree.children.forEach((node) => {
-    shouldSkipNode = false;
-    if ("depth" in node) {
-      if ((node as Heading).depth > 1) {
-        if (hasFoundMainHeading) {
-          totalSectionCount++;
-          currentHeadingDepth = (node as Heading).depth;
-        } else {
-          shouldSkipNode = true;
-        }
-      } else {
-        currentHeadingDepth = 1;
-        hasFoundMainHeading = true;
-      }
-    }
-    while (sections.length < totalSectionCount) {
-      const newSection = {
-        children: [],
-        sections: [],
-        depth: currentHeadingDepth,
-        title: "section-title-not-set",
-      };
-      sections.push(newSection);
-      nestedSectionStack[currentHeadingDepth - 1] = newSection;
-      if (currentHeadingDepth > 1) {
-        const parentSection = nestedSectionStack[currentHeadingDepth - 2];
-        if (parentSection) {
-          parentSection.sections.push(newSection);
-        }
-      }
-    }
-    const targetSection =
-      currentHeadingDepth === 1 ? sections[0] : sections[totalSectionCount - 1];
+    const shouldSkipNode = processHeadingNode(node, state);
+
+    ensureSectionsExist(state);
+
     if (!shouldSkipNode) {
+      const targetSection = getTargetSection(state);
       targetSection.children.push(node);
     }
   });
 
-  sections.forEach((section) => (section.title = extractSectionTitle(section)));
-  return sections;
+  // Set titles for all sections
+  state.sections.forEach((section) => {
+    section.title = extractSectionTitle(section);
+  });
+
+  return state.sections;
 };
 
 const getAllNodesFromSection = (section: Section): Node[] => {

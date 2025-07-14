@@ -1,6 +1,7 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## Commands
 
@@ -29,6 +30,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - If any processes, such as testing generate, create files, these should be
   written to the target/ folder so that they can be easily clean up.
 - Avoid use of any, instead set up types properly.
+- Once you have made changes please check that the following pass
+  1. `npm test`
+  2. `npm run lint`
+  3. `npm build`
+  4. `npm run knip`
 
 ## Test Architecture
 
@@ -43,18 +49,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Architecture
 
 This is a TypeScript library for generating graphs from markdown repositories.
-The core architecture follows these patterns:
-
-### Core Components
-
-- **Repository (`src/repository.ts`)** - Main entry point that creates graph structures from markdown content
-- **BaseItem (`src/base-item.ts`)** - Handles individual markdown items with frontmatter parsing using gray-matter
-- **Types (`src/types.ts`)** - Core interfaces including `Item`, `ItemReference`, `MetaData`, and `RepositoryOptions`
-- **MarkdownMessage (`src/mardown-message.ts`)** - Utility for generating markdown error messages
 
 ### Key Concepts
 
 - **Graph Structure**: Uses `@adaptivekind/graph-schema` with nodes and links
 - **Frontmatter**: YAML frontmatter is parsed with explicit language setting to disable caching
-- **Error Handling**: Frontmatter parsing errors are converted to markdown messages and appended to content
 - **Repository Types**: Supports both "file" and "inmemory" repository types
