@@ -7,6 +7,13 @@ import { debounce } from "es-toolkit";
 import fs from "fs";
 import path from "path";
 
+// File watcher configuration constants
+const DEFAULT_DEBOUNCE_MS = 300;
+const FILE_STABILITY_THRESHOLD_MS = 100;
+const POLL_INTERVAL_MS = 50;
+const KEEPALIVE_INTERVAL_MS = 30000;
+const JSON_INDENT_SPACES = 2;
+
 export interface WatchOptions {
   targetDirectory: string;
   outputFile: string;
@@ -43,7 +50,7 @@ export class GraphWatcher extends EventEmitter {
   constructor(options: WatchOptions) {
     super();
     this.options = {
-      debounceMs: 300,
+      debounceMs: DEFAULT_DEBOUNCE_MS,
       excludes: ["node_modules", "dist", ".git"],
       includeHidden: false,
       verbose: false,
@@ -94,8 +101,8 @@ export class GraphWatcher extends EventEmitter {
         ignored: (path: string, stats) =>
           !!stats?.isFile() && !path.endsWith(".md"),
         awaitWriteFinish: {
-          stabilityThreshold: 100,
-          pollInterval: 50,
+          stabilityThreshold: FILE_STABILITY_THRESHOLD_MS,
+          pollInterval: POLL_INTERVAL_MS,
         },
         usePolling: false,
       });
@@ -110,7 +117,7 @@ export class GraphWatcher extends EventEmitter {
         // Keep the event loop active with a timer to prevent process exit
         setInterval(() => {
           // Do nothing, just keep the event loop busy
-        }, 30000); // Check every 30 seconds
+        }, KEEPALIVE_INTERVAL_MS); // Check every 30 seconds
       });
     } catch (error) {
       consola.error("Failed to start watcher:", error);
@@ -267,7 +274,7 @@ export class GraphWatcher extends EventEmitter {
       const graph = this.graphManager.getGraph();
       const nodeCount = Object.keys(graph.nodes).length;
       const linkCount = graph.links.length;
-      const jsonContent = JSON.stringify(graph, null, 2);
+      const jsonContent = JSON.stringify(graph, null, JSON_INDENT_SPACES);
 
       // Ensure output directory exists
       const outputDir = path.dirname(this.options.outputFile);

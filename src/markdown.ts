@@ -53,8 +53,13 @@ const extractSectionTitle = (section: Section) => {
   return extractTextFromNode(firstHeading, isRegularTextNode);
 };
 
-// Maximum heading depth supported (h1 through h6)
+// Markdown processing constants
 const MAX_HEADING_DEPTH = 6;
+const ROOT_SECTION_DEPTH = 1;
+const ROOT_SECTION_INDEX = 0;
+const INITIAL_SECTION_COUNT = 1;
+const H1_HEADING_DEPTH = 1;
+const FILENAME_REGEX_GROUP_INDEX = 1;
 
 interface SectionParsingState {
   sections: Section[];
@@ -71,17 +76,17 @@ const initializeSectionParsingState = (): SectionParsingState => {
   const rootSection: Section = {
     children: [],
     sections: [],
-    depth: 1,
+    depth: ROOT_SECTION_DEPTH,
     title: "title-not-set",
   };
 
   const nestedSectionStack = new Array<Section>(MAX_HEADING_DEPTH);
-  nestedSectionStack[0] = rootSection;
+  nestedSectionStack[ROOT_SECTION_INDEX] = rootSection;
 
   return {
     sections: [rootSection],
-    sectionCount: 1,
-    currentHeadingDepth: 1,
+    sectionCount: INITIAL_SECTION_COUNT,
+    currentHeadingDepth: ROOT_SECTION_DEPTH,
     foundMainHeading: false,
     nestedSectionStack,
   };
@@ -100,7 +105,7 @@ const processHeadingNode = (
 
   const headingDepth = (node as Heading).depth;
 
-  if (headingDepth > 1) {
+  if (headingDepth > H1_HEADING_DEPTH) {
     if (state.foundMainHeading) {
       state.sectionCount++;
       state.currentHeadingDepth = headingDepth;
@@ -110,7 +115,7 @@ const processHeadingNode = (
     }
   } else {
     // This is an h1 heading
-    state.currentHeadingDepth = 1;
+    state.currentHeadingDepth = H1_HEADING_DEPTH;
     state.foundMainHeading = true;
     return false; // Don't skip
   }
@@ -132,7 +137,7 @@ const ensureSectionsExist = (state: SectionParsingState): void => {
     state.nestedSectionStack[state.currentHeadingDepth - 1] = newSection;
 
     // Link to parent section if this is a nested section
-    if (state.currentHeadingDepth > 1) {
+    if (state.currentHeadingDepth > H1_HEADING_DEPTH) {
       const parentSection =
         state.nestedSectionStack[state.currentHeadingDepth - 2];
       if (parentSection) {
@@ -146,8 +151,8 @@ const ensureSectionsExist = (state: SectionParsingState): void => {
  * Get the target section for adding the current node
  */
 const getTargetSection = (state: SectionParsingState): Section => {
-  return state.currentHeadingDepth === 1
-    ? state.sections[0]
+  return state.currentHeadingDepth === H1_HEADING_DEPTH
+    ? state.sections[ROOT_SECTION_INDEX]
     : state.sections[state.sectionCount - 1];
 };
 
@@ -195,7 +200,7 @@ const getAllNodesFromSection = (section: Section): Node[] => {
 
 const extractFileNameFromUrl = (url: string) => {
   const fileNameMatch = /([^/]*?)(?:.md|\/)*$/.exec(url);
-  return fileNameMatch ? fileNameMatch[1] : url;
+  return fileNameMatch ? fileNameMatch[FILENAME_REGEX_GROUP_INDEX] : url;
 };
 
 const toMarkdownSection = (

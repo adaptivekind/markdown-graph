@@ -4,6 +4,9 @@ import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
 import { parseMarkdownDocument } from "./markdown";
 
+// Constants for graph building
+const ROOT_SECTION_DEPTH = 1;
+
 /**
  * Builder class for constructing graph structures from markdown documents
  *
@@ -84,7 +87,7 @@ export class GraphBuilder {
     document: MarkdownDocument,
     section: MarkdownSection,
   ): string {
-    if (section.depth === 1) {
+    if (section.depth === ROOT_SECTION_DEPTH) {
       // Top-level sections use the document ID
       return document.id;
     }

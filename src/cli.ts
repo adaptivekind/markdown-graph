@@ -38,6 +38,13 @@ interface ProcessedCliOptions {
   debounceMs?: number;
 }
 
+// CLI configuration constants
+const SUCCESS_EXIT_CODE = 0;
+const ERROR_EXIT_CODE = 1;
+const DEFAULT_DEBOUNCE_STRING = "300";
+const PARSE_BASE_10 = 10;
+const JSON_INDENT_SPACES = 2;
+
 // Logging levels for different modes
 const LOG_LEVELS = {
   QUIET: 0, // Only fatal errors
@@ -162,7 +169,7 @@ export const runWatch = async (options: CliOptions = {}): Promise<void> => {
     const shutdown = async () => {
       consola.info("Shutting down watcher...");
       await watcher.stop();
-      process.exit(0);
+      process.exit(SUCCESS_EXIT_CODE);
     };
 
     process.on("SIGINT", shutdown);
@@ -176,7 +183,7 @@ export const runWatch = async (options: CliOptions = {}): Promise<void> => {
     } else {
       consola.error("Unexpected error:", error);
     }
-    process.exit(1);
+    process.exit(ERROR_EXIT_CODE);
   }
 };
 
@@ -215,7 +222,7 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
     // Write graph to JSON file
     fs.writeFileSync(
       processedOptions.outputFile,
-      JSON.stringify(garden.graph, null, 2),
+      JSON.stringify(garden.graph, null, JSON_INDENT_SPACES),
     );
 
     const endTime = performance.now();
@@ -314,7 +321,7 @@ const setupCliProgram = (): Command => {
     const cliOptions = buildCliOptions(directory, options);
     const result = await runCli(cliOptions);
     if (!result.success) {
-      process.exit(1);
+      process.exit(ERROR_EXIT_CODE);
     }
   });
 
@@ -327,11 +334,11 @@ const setupCliProgram = (): Command => {
     .option(
       "--debounce <ms>",
       "Debounce delay for file changes in milliseconds",
-      "300",
+      DEFAULT_DEBOUNCE_STRING,
     )
     .action(async (directory: string, options: WatchCommandOptions) => {
       const cliOptions = buildCliOptions(directory, options, {
-        debounceMs: parseInt(options.debounce, 10),
+        debounceMs: parseInt(options.debounce, PARSE_BASE_10),
       });
       await runWatch(cliOptions);
     });
@@ -371,7 +378,7 @@ const main = async (): Promise<void> => {
     } else {
       consola.error("Unexpected error:", error);
     }
-    process.exit(1);
+    process.exit(ERROR_EXIT_CODE);
   }
 };
 

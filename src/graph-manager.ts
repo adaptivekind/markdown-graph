@@ -5,6 +5,10 @@ import { linkResolver } from "./link-resolver";
 import { parseMarkdownDocument } from "./markdown";
 import path from "path";
 
+// Constants for graph management
+const ROOT_SECTION_DEPTH = 1;
+const EMPTY_OBJECT_LENGTH = 0;
+
 interface DocumentNodeMapping {
   documentId: string;
   nodeIds: string[];
@@ -173,7 +177,7 @@ export class GraphManager {
     document: MarkdownDocument,
     section: { depth: number; title: string },
   ): string {
-    if (section.depth === 1) {
+    if (section.depth === ROOT_SECTION_DEPTH) {
       return document.id;
     }
     return `${document.id}#${linkResolver(section.title)}`;
@@ -187,7 +191,7 @@ export class GraphManager {
   ): { [name: string]: string } | undefined {
     if (
       !document.frontmatter ||
-      Object.keys(document.frontmatter).length === 0
+      Object.keys(document.frontmatter).length === EMPTY_OBJECT_LENGTH
     ) {
       return undefined;
     }
