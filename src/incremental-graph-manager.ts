@@ -131,11 +131,12 @@ export class IncrementalGraphManager {
       };
     });
 
-    // Add links
+    // Add links from all sections
     sections.forEach((section) => {
+      const sourceNodeId = this.createNodeId(document, section);
       section.links.forEach((target) => {
         this.graph.links.push({
-          source: document.id,
+          source: sourceNodeId,
           target: target,
         });
       });
@@ -154,10 +155,12 @@ export class IncrementalGraphManager {
       delete this.graph.nodes[nodeId];
     });
 
-    // Remove links where this document is the source
-    this.graph.links = this.graph.links.filter(
-      (link) => link.source !== documentId,
-    );
+    // Remove links where any of this document's nodes are source or target
+    this.graph.links = this.graph.links.filter((link) => {
+      const sourceIsFromDocument = mapping.nodeIds.includes(link.source);
+      const targetIsFromDocument = mapping.nodeIds.includes(link.target);
+      return !sourceIsFromDocument && !targetIsFromDocument;
+    });
 
     // Remove the mapping
     this.documentMappings.delete(documentId);
