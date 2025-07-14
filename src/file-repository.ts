@@ -61,9 +61,10 @@ export class FileRepository implements MarkdownRepository {
     this.options = {
       excludes: ["node_modules", "dist"],
       includeHidden: false,
-      ...options,
+      ...Object.fromEntries(
+        Object.entries(options).filter(([, value]) => value != undefined),
+      ),
     };
-    // Directory validation is now lazy - happens on first use
   }
 
   private async validateDirectory(): Promise<void> {

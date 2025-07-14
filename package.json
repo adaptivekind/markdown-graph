@@ -30,7 +30,12 @@
     "test": "jest --no-watchman",
     "test:watch": "jest --watch",
     "test:coverage": "jest --no-watchman --coverage",
-    "knip": "knip"
+    "knip": "knip",
+    "demo:setup": "scripts/setup-demo.sh",
+    "demo:generate": "node dist/cli.js generate ./target/demo-docs",
+    "demo:watch": "node dist/cli.js watch ./target/demo-docs --verbose",
+    "demo:test": "scripts/demo-test-changes.sh",
+    "demo:clean": "rm -rf target/"
   },
   "devDependencies": {
     "@adaptivekind/graph-schema": "^0.1.9",
@@ -57,6 +62,7 @@
     "tslib": "^2.8.1"
   },
   "dependencies": {
+    "chokidar": "^4.0.3",
     "commander": "^14.0.0",
     "consola": "^3.4.2",
     "es-toolkit": "^1.39.7",

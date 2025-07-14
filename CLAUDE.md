@@ -6,8 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Testing
 
-- `npm test` - Run all tests using Jest
-- `npm run test:watch` - Run tests in watch mode
+- `npm test` - Run all tests using Jest.
+- `npm build` - Build the package with rollup.
+- `npm run lint` - Check that files are linted correctly.
+- `npm run knip` - Declutter the project, e.g. removing redundancy.
 
 ### TypeScript
 
@@ -15,9 +17,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Root source directory is `./src`
 - Target: ES2020
 
+## Development Notes
+
+- The codebase uses ES modules (`"type": "module"` in package.json)
+- Gray-matter caching is explicitly disabled by setting language option
+- Strict TypeScript configuration with isolated modules
+- Sort typescript imports by putting multiple imports first. After that single
+  imports should be sorted starting with a imports starting with a capital letter,
+  after which singles imports starting with a lower case letter should be sorted.
+- Content in markdown files should not have more than 80 characters on a line.
+- If any processes, such as testing generate, create files, these should be
+  written to the target/ folder so that they can be easily clean up.
+- Avoid use of any, instead set up types properly.
+
+## Test Architecture
+
+- Tests are located in `src/features/` directory
+- Helper functions in `feature-helpers.ts` provide utilities like `graphFrom()`
+- Jest configuration uses JSdom environment and treats `.ts` files as ES modules
+- Test files use `.test.ts` extension
+- Prefer feature tests which test the entry points for this package as opposed
+  to unit tests based on internal structure. This asserts the desired behaviour of
+  the package.
+
 ## Architecture
 
-This is a TypeScript library for generating graphs from markdown repositories. The core architecture follows these patterns:
+This is a TypeScript library for generating graphs from markdown repositories.
+The core architecture follows these patterns:
 
 ### Core Components
 
@@ -32,19 +58,3 @@ This is a TypeScript library for generating graphs from markdown repositories. T
 - **Frontmatter**: YAML frontmatter is parsed with explicit language setting to disable caching
 - **Error Handling**: Frontmatter parsing errors are converted to markdown messages and appended to content
 - **Repository Types**: Supports both "file" and "inmemory" repository types
-
-### Test Architecture
-
-- Tests are located in `src/features/` directory
-- Helper functions in `feature-helpers.ts` provide utilities like `graphFrom()`
-- Jest configuration uses JSdom environment and treats `.ts` files as ES modules
-- Test files use `.test.ts` extension
-
-### Development Notes
-
-- The codebase uses ES modules (`"type": "module"` in package.json)
-- Gray-matter caching is explicitly disabled by setting language option
-- Strict TypeScript configuration with isolated modules
-- Sort typescript imports by putting multiples first. Single import starting
-  with a capital letter should be listed before single imports starting with a
-  lower case.
