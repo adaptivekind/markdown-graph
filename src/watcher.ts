@@ -140,32 +140,34 @@ export class GraphWatcher extends EventEmitter {
    * Set up event handlers for the file watcher
    */
   private setupWatcherHandlers(watcher: chokidar.FSWatcher): void {
-    // watcher.on("raw", (event, path, details) => {
-    //   // internal
-    //   consola.info("Raw event info:", event, path, details);
-    // });
+    this.setupFileChangeHandlers(watcher);
+    this.setupWatcherLifecycleHandlers(watcher);
+  }
 
+  /**
+   * Set up handlers for file change events (add, change, unlink)
+   */
+  private setupFileChangeHandlers(watcher: chokidar.FSWatcher): void {
     watcher.on("add", (filePath: string) => {
-      if (this.options.verbose) {
-        consola.info(`File added: ${filePath}`);
-      }
+      this.logFileEvent("File added", filePath);
       this.handleFileChange(filePath, "added");
     });
 
     watcher.on("change", (filePath: string) => {
-      if (this.options.verbose) {
-        consola.info(`File changed: ${filePath}`);
-      }
+      this.logFileEvent("File changed", filePath);
       this.handleFileChange(filePath, "changed");
     });
 
     watcher.on("unlink", (filePath: string) => {
-      if (this.options.verbose) {
-        consola.info(`File removed: ${filePath}`);
-      }
+      this.logFileEvent("File removed", filePath);
       this.handleFileRemoval(filePath);
     });
+  }
 
+  /**
+   * Set up handlers for watcher lifecycle events (error, ready)
+   */
+  private setupWatcherLifecycleHandlers(watcher: chokidar.FSWatcher): void {
     watcher.on("error", (error: unknown) => {
       consola.error("Watcher error:", error);
     });
@@ -176,6 +178,15 @@ export class GraphWatcher extends EventEmitter {
       }
       this.emit("ready");
     });
+  }
+
+  /**
+   * Log file events if verbose logging is enabled
+   */
+  private logFileEvent(eventType: string, filePath: string): void {
+    if (this.options.verbose) {
+      consola.info(`${eventType}: ${filePath}`);
+    }
   }
 
   /**
