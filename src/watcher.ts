@@ -1,7 +1,7 @@
 import * as chokidar from "chokidar";
 import { EventEmitter } from "events";
 import { FileRepository } from "./file-repository";
-import { IncrementalGraphManager } from "./incremental-graph-manager";
+import { GraphManager } from "./graph-manager";
 import { consola } from "consola";
 import { debounce } from "es-toolkit";
 import fs from "fs";
@@ -28,7 +28,7 @@ export interface WatchStats {
  */
 export class GraphWatcher extends EventEmitter {
   private watcher?: chokidar.FSWatcher;
-  private graphManager: IncrementalGraphManager;
+  private graphManager: GraphManager;
   private options: Required<WatchOptions>;
   private stats: WatchStats = {
     totalFiles: 0,
@@ -56,7 +56,7 @@ export class GraphWatcher extends EventEmitter {
       includeHidden: this.options.includeHidden,
     });
 
-    this.graphManager = new IncrementalGraphManager(
+    this.graphManager = new GraphManager(
       repository,
       this.options.targetDirectory,
     );

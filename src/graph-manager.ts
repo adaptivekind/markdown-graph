@@ -18,7 +18,7 @@ interface DocumentNodeMapping {
  * allowing for efficient updates when individual files change rather than
  * regenerating the entire graph.
  */
-export class IncrementalGraphManager {
+export class GraphManager {
   private graph: Graph = { nodes: {}, links: [] };
   private documentMappings = new Map<string, DocumentNodeMapping>();
   private repository: MarkdownRepository;
