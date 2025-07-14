@@ -24,11 +24,6 @@ describe("GraphWatcher Integration", () => {
     if (watcher) {
       await watcher.stop();
     }
-
-    // Clean up test directory
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true });
-    }
   });
 
   it("should initialize graph from existing files", async () => {
