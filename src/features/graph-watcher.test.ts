@@ -11,7 +11,7 @@ interface FileChangeEventData {
   };
 }
 
-describe("GraphWatcher Integration (Event-Driven)", () => {
+describe("GraphWatcher", () => {
   const testDir = path.join(
     __dirname,
     "../../target/graphwatcher-integration-test-events",
