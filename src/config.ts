@@ -93,22 +93,37 @@ function loadConfigFromFile(
   const searchPaths = options.searchPaths || DEFAULT_SEARCH_PATHS;
 
   for (const searchPath of searchPaths) {
-    for (const configName of configNames) {
-      const configPath = path.join(searchPath, configName);
-
-      if (fs.existsSync(configPath)) {
-        try {
-          return loadConfigFile(configPath, configName);
-        } catch (error) {
-          throw new RepositoryConfigurationError(
-            `Failed to load config from ${configPath}: ${error instanceof Error ? error.message : error}`,
-          );
-        }
-      }
+    const foundConfig = tryLoadConfigInPath(searchPath, configNames);
+    if (foundConfig) {
+      return foundConfig;
     }
   }
 
   return {};
+}
+
+/**
+ * Try to load configuration from a specific path
+ */
+function tryLoadConfigInPath(
+  searchPath: string,
+  configNames: string[],
+): Partial<MarkdownGraphConfig> | null {
+  for (const configName of configNames) {
+    const configPath = path.join(searchPath, configName);
+
+    if (fs.existsSync(configPath)) {
+      try {
+        return loadConfigFile(configPath, configName);
+      } catch (error) {
+        throw new RepositoryConfigurationError(
+          `Failed to load config from ${configPath}: ${error instanceof Error ? error.message : error}`,
+        );
+      }
+    }
+  }
+
+  return null;
 }
 
 /**

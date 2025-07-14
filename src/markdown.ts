@@ -59,7 +59,6 @@ const ROOT_SECTION_DEPTH = 1;
 const ROOT_SECTION_INDEX = 0;
 const INITIAL_SECTION_COUNT = 1;
 const H1_HEADING_DEPTH = 1;
-const FILENAME_REGEX_GROUP_INDEX = 1;
 
 interface SectionParsingState {
   sections: Section[];
@@ -199,8 +198,18 @@ const getAllNodesFromSection = (section: Section): Node[] => {
 };
 
 const extractFileNameFromUrl = (url: string) => {
-  const fileNameMatch = /([^/]*?)(?:.md|\/)*$/.exec(url);
-  return fileNameMatch ? fileNameMatch[FILENAME_REGEX_GROUP_INDEX] : url;
+  // Remove trailing slashes and .md extensions, then get the last path component
+  let cleanUrl = url;
+  while (cleanUrl.endsWith("/")) {
+    cleanUrl = cleanUrl.slice(0, -1);
+  }
+  if (cleanUrl.endsWith(".md")) {
+    cleanUrl = cleanUrl.slice(0, -3);
+  }
+  const lastSlashIndex = cleanUrl.lastIndexOf("/");
+  return lastSlashIndex === -1
+    ? cleanUrl
+    : cleanUrl.substring(lastSlashIndex + 1);
 };
 
 const toMarkdownSection = (

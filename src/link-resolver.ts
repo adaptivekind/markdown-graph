@@ -15,7 +15,7 @@ export const linkResolver = (name: string): string => {
   if (cached !== undefined) return cached;
 
   const result = name
-    .replace(/[ \\/\\.]/g, "-")
+    .replace(/[ /\\.]/g, "-")
     .toLowerCase()
     // normalize according to NFD - canonical decompisition - https://unicode.org/reports/tr15/
     // NFD effectively removes accents and reduces variations on to single form
