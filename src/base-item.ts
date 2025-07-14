@@ -13,22 +13,22 @@ const flattenObject = (
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const newKey = prefix ? `${prefix}.${key}` : key;
-      const value = obj[key];
+      const propertyValue = obj[key];
 
-      if (Array.isArray(value)) {
+      if (Array.isArray(propertyValue)) {
         // Handle arrays by creating indexed keys
-        value.forEach((item, index) => {
+        propertyValue.forEach((item, index) => {
           flattened[`${newKey}.${index}`] = String(item);
         });
-      } else if (value !== null && typeof value === "object") {
+      } else if (propertyValue !== null && typeof propertyValue === "object") {
         // Recursively flatten nested objects
         Object.assign(
           flattened,
-          flattenObject(value as Record<string, unknown>, newKey),
+          flattenObject(propertyValue as Record<string, unknown>, newKey),
         );
       } else {
         // Convert to string for storage
-        flattened[newKey] = String(value);
+        flattened[newKey] = String(propertyValue);
       }
     }
   }
@@ -72,10 +72,10 @@ export class BaseItem implements MarkdownDocument {
     this.id = itemReference.id;
     this.hash = itemReference.hash;
 
-    const itemMatter = safeMatter(content);
+    const parsedFrontmatter = safeMatter(content);
 
     // Flatten the frontmatter data and store it in meta
-    this.frontmatter = flattenObject(itemMatter.data);
-    this.content = itemMatter.content;
+    this.frontmatter = flattenObject(parsedFrontmatter.data);
+    this.content = parsedFrontmatter.content;
   }
 }

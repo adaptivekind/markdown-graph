@@ -76,8 +76,12 @@ export class FileRepository implements MarkdownRepository {
   }
 
   toDocumentReference(filename: string): DocumentReference {
-    const normalizedId = this.normalizeFilename(filename);
-    return new FileDocumentReference(normalizedId, filename, hash(filename));
+    const normalizedDocumentId = this.normalizeFilename(filename);
+    return new FileDocumentReference(
+      normalizedDocumentId,
+      filename,
+      hash(filename),
+    );
   }
 
   private normalizeFilename(filename: string): string {
@@ -129,16 +133,21 @@ export class FileRepository implements MarkdownRepository {
     dir: string,
   ): AsyncIterable<DocumentReference> {
     try {
-      const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+      const directoryEntries = await fs.promises.readdir(dir, {
+        withFileTypes: true,
+      });
 
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
+      for (const directoryEntry of directoryEntries) {
+        const fullPath = path.join(dir, directoryEntry.name);
 
-        if (entry.isDirectory()) {
-          if (this.shouldScanDirectory(entry.name)) {
+        if (directoryEntry.isDirectory()) {
+          if (this.shouldScanDirectory(directoryEntry.name)) {
             yield* this.findMarkdownFilesRecursively(fullPath);
           }
-        } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        } else if (
+          directoryEntry.isFile() &&
+          directoryEntry.name.endsWith(".md")
+        ) {
           const relativePath = path.relative(this.directory, fullPath);
           yield this.toDocumentReference(relativePath);
         }

@@ -125,8 +125,9 @@ function processCliOptions(
   options: CliOptions = {},
   checkDirectory = true,
 ): ProcessedCliOptions {
-  const mergedOptions = mergeOptionsWithConfig(options);
-  const { targetDirectory, verbose, quiet, providedOutputFile } = mergedOptions;
+  const mergedConfiguration = mergeOptionsWithConfig(options);
+  const { targetDirectory, verbose, quiet, providedOutputFile } =
+    mergedConfiguration;
 
   configureLogging(verbose, quiet);
   const outputFile = resolveOutputFilePath(providedOutputFile, targetDirectory);

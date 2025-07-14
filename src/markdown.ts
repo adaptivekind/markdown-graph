@@ -178,19 +178,19 @@ const toSections = (markdownSyntaxTree: Parent): Section[] => {
 
 const getAllNodesFromSection = (section: Section): Node[] => {
   // Optimized section node collection
-  const result: Node[] = [];
-  const queue: Node[] = [...section.children];
+  const collectedNodes: Node[] = [];
+  const nodeQueue: Node[] = [...section.children];
 
-  while (queue.length > 0) {
-    const current = queue.shift()!;
-    result.push(current);
+  while (nodeQueue.length > 0) {
+    const currentNode = nodeQueue.shift()!;
+    collectedNodes.push(currentNode);
 
-    if ("children" in current && current.children) {
-      queue.push(...(current.children as Node[]));
+    if ("children" in currentNode && currentNode.children) {
+      nodeQueue.push(...(currentNode.children as Node[]));
     }
   }
 
-  return result;
+  return collectedNodes;
 };
 
 const extractFileNameFromUrl = (url: string) => {
@@ -203,21 +203,21 @@ const toMarkdownSection = (
   section: Section,
 ): MarkdownSection => {
   // Single-pass link extraction for better performance
-  const foundLinks: string[] = [];
+  const extractedLinks: string[] = [];
   const nodes = getAllNodesFromSection(section);
 
   for (const node of nodes) {
     if (node.type === "wikiLink") {
-      foundLinks.push(linkResolver((node as Literal).value));
+      extractedLinks.push(linkResolver((node as Literal).value));
     } else if (node.type === "link" && (node as Link).url.startsWith("./")) {
-      foundLinks.push(extractFileNameFromUrl((node as Link).url));
+      extractedLinks.push(extractFileNameFromUrl((node as Link).url));
     }
   }
 
   return {
     title: section.title,
     hash: document.hash,
-    links: foundLinks,
+    links: extractedLinks,
     depth: section.depth,
   };
 };
