@@ -4,6 +4,10 @@
   "project": ["src/**/*.ts"],
   "ignore": ["dist/**", ".rollup.cache/**", "**/*.js", "src/cli.ts"],
   "ignoreDependencies": ["eslint-plugin-import"],
-  "ignoreBinaries": ["scripts/setup-demo.sh", "scripts/demo-test-changes.sh"],
+  "ignoreBinaries": [
+    "scripts/setup-demo.sh",
+    "scripts/demo-test-changes.sh",
+    "semantic-release"
+  ],
   "ignoreExportsUsedInFile": true
 }
