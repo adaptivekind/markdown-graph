@@ -28,52 +28,82 @@ export interface CliResult {
   linkCount?: number;
 }
 
+interface ProcessedCliOptions {
+  targetDirectory: string;
+  outputFile: string;
+  verbose: boolean;
+  quiet: boolean;
+  excludes?: string[];
+  includeHidden?: boolean;
+  debounceMs?: number;
+}
+
+/**
+ * Process and validate CLI options and configure logging
+ */
+function processCliOptions(
+  options: CliOptions = {},
+  checkDirectory = true,
+): ProcessedCliOptions {
+  // Load and validate configuration
+  const config = loadConfig(options);
+  validateConfig(config);
+
+  // Use CLI options as priority, then config, then defaults
+  const targetDirectory =
+    options.targetDirectory || config.targetDirectory || process.cwd();
+  const providedOutputFile = options.outputFile;
+  const verbose =
+    options.verbose !== undefined ? options.verbose : config.verbose || false;
+  const quiet =
+    options.quiet !== undefined ? options.quiet : config.quiet || false;
+
+  // Configure logger based on flags
+  if (quiet) {
+    consola.level = 0; // Only fatal errors
+  } else if (verbose) {
+    consola.level = 4; // All logs including debug
+  } else {
+    consola.level = 3; // Default: info, warn, error, success
+  }
+
+  // Default output file goes in the target directory
+  const outputFile = providedOutputFile
+    ? path.isAbsolute(providedOutputFile)
+      ? providedOutputFile
+      : path.join(process.cwd(), providedOutputFile)
+    : path.join(targetDirectory, ".garden-graph.json");
+
+  // Check if target directory exists (optional for different error handling needs)
+  if (checkDirectory && !fs.existsSync(targetDirectory)) {
+    const message = `Directory does not exist: ${targetDirectory}`;
+    consola.error(message);
+    throw new Error(message);
+  }
+
+  return {
+    targetDirectory,
+    outputFile,
+    verbose,
+    quiet,
+    excludes: options.excludes,
+    includeHidden: options.includeHidden,
+    debounceMs: options.debounceMs,
+  };
+}
+
 export const runWatch = async (options: CliOptions = {}): Promise<void> => {
   try {
-    // Load and validate configuration
-    const config = loadConfig(options);
-    validateConfig(config);
-
-    // Use CLI options as priority, then config, then defaults
-    const targetDirectory =
-      options.targetDirectory || config.targetDirectory || process.cwd();
-    const providedOutputFile = options.outputFile;
-    const verbose =
-      options.verbose !== undefined ? options.verbose : config.verbose || false;
-    const quiet =
-      options.quiet !== undefined ? options.quiet : config.quiet || false;
-
-    // Configure logger based on flags
-    if (quiet) {
-      consola.level = 0; // Only fatal errors
-    } else if (verbose) {
-      consola.level = 4; // All logs including debug
-    } else {
-      consola.level = 3; // Default: info, warn, error, success
-    }
-
-    // Default output file goes in the target directory
-    const outputFile = providedOutputFile
-      ? path.isAbsolute(providedOutputFile)
-        ? providedOutputFile
-        : path.join(process.cwd(), providedOutputFile)
-      : path.join(targetDirectory, ".garden-graph.json");
-
-    // Check if target directory exists
-    if (!fs.existsSync(targetDirectory)) {
-      const message = `Directory does not exist: ${targetDirectory}`;
-      consola.error(message);
-      return;
-    }
+    const processedOptions = processCliOptions(options);
 
     // Create and start watcher
     const watcher = new GraphWatcher({
-      targetDirectory,
-      outputFile,
-      verbose,
-      excludes: options.excludes,
-      includeHidden: options.includeHidden,
-      debounceMs: options.debounceMs,
+      targetDirectory: processedOptions.targetDirectory,
+      outputFile: processedOptions.outputFile,
+      verbose: processedOptions.verbose,
+      excludes: processedOptions.excludes,
+      includeHidden: processedOptions.includeHidden,
+      debounceMs: processedOptions.debounceMs,
     });
 
     // Handle graceful shutdown
@@ -100,55 +130,23 @@ export const runWatch = async (options: CliOptions = {}): Promise<void> => {
 
 export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
   try {
-    // Load and validate configuration
-    const config = loadConfig(options);
-    validateConfig(config);
+    const processedOptions = processCliOptions(options, false);
 
-    // Use CLI options as priority, then config, then defaults
-    const targetDirectory =
-      options.targetDirectory || config.targetDirectory || process.cwd();
-    const providedOutputFile = options.outputFile; // Only use explicitly provided output file
-    const verbose =
-      options.verbose !== undefined ? options.verbose : config.verbose || false;
-    const quiet =
-      options.quiet !== undefined ? options.quiet : config.quiet || false;
-    // Note: excludes and includeHidden are available for future use
-    // const excludes = options.excludes || config.excludes;
-    // const includeHidden = options.includeHidden !== undefined
-    //   ? options.includeHidden
-    //   : config.includeHidden;
-
-    // Configure logger based on flags
-    if (quiet) {
-      consola.level = 0; // Only fatal errors
-    } else if (verbose) {
-      consola.level = 4; // All logs including debug
-    } else {
-      consola.level = 3; // Default: info, warn, error, success
-    }
-
-    // Default output file goes in the target directory
-    const outputFile = providedOutputFile
-      ? path.isAbsolute(providedOutputFile)
-        ? providedOutputFile
-        : path.join(process.cwd(), providedOutputFile)
-      : path.join(targetDirectory, ".garden-graph.json");
-
-    const startTime = performance.now();
-
-    // Check if target directory exists
-    if (!fs.existsSync(targetDirectory)) {
-      const message = `Directory does not exist: ${targetDirectory}`;
+    // Check if target directory exists and return error result if not
+    if (!fs.existsSync(processedOptions.targetDirectory)) {
+      const message = `Directory does not exist: ${processedOptions.targetDirectory}`;
       consola.error(message);
       return { success: false, message };
     }
 
-    consola.start(`Scanning directory: ${targetDirectory}`);
+    const startTime = performance.now();
+
+    consola.start(`Scanning directory: ${processedOptions.targetDirectory}`);
 
     // Generate graph for target directory
     const garden = await createGarden({
       type: "file",
-      path: targetDirectory,
+      path: processedOptions.targetDirectory,
     });
 
     const nodeCount = Object.keys(garden.graph.nodes).length;
@@ -156,24 +154,27 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
 
     consola.info(`Found ${nodeCount} nodes and ${linkCount} links`);
 
-    if (verbose) {
-      consola.debug(`Target directory: ${targetDirectory}`);
-      consola.debug(`Output file: ${outputFile}`);
+    if (processedOptions.verbose) {
+      consola.debug(`Target directory: ${processedOptions.targetDirectory}`);
+      consola.debug(`Output file: ${processedOptions.outputFile}`);
       consola.debug(`Nodes: ${Object.keys(garden.graph.nodes).join(", ")}`);
     }
 
     // Write graph to JSON file
-    fs.writeFileSync(outputFile, JSON.stringify(garden.graph, null, 2));
+    fs.writeFileSync(
+      processedOptions.outputFile,
+      JSON.stringify(garden.graph, null, 2),
+    );
 
     const endTime = performance.now();
     const duration = Math.round(endTime - startTime);
-    const message = `Graph generated and written to ${outputFile} (${duration}ms)`;
+    const message = `Graph generated and written to ${processedOptions.outputFile} (${duration}ms)`;
     consola.success(message);
 
     return {
       success: true,
       message,
-      outputFile,
+      outputFile: processedOptions.outputFile,
       nodeCount,
       linkCount,
     };
@@ -192,6 +193,57 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
   }
 };
 
+interface CommonCommandOptions {
+  output?: string;
+  verbose: boolean;
+  quiet: boolean;
+  exclude?: string[];
+  includeHidden: boolean;
+}
+
+interface WatchCommandOptions extends CommonCommandOptions {
+  debounce: string;
+}
+
+/**
+ * Add common options shared between generate and watch commands
+ */
+function addCommonOptions(command: Command): Command {
+  return command
+    .argument(
+      "[directory]",
+      "Directory to scan for markdown files",
+      process.cwd(),
+    )
+    .option(
+      "-o, --output <file>",
+      "Output file path (default: .garden-graph.json)",
+    )
+    .option("-v, --verbose", "Enable verbose logging", false)
+    .option("-q, --quiet", "Suppress all output except errors", false)
+    .option("--exclude <patterns...>", "Patterns to exclude from scanning")
+    .option("--include-hidden", "Include hidden files and directories", false);
+}
+
+/**
+ * Convert command options to CliOptions format
+ */
+function buildCliOptions(
+  directory: string,
+  options: CommonCommandOptions,
+  additionalOptions?: { debounceMs?: number },
+): CliOptions {
+  return {
+    targetDirectory: path.resolve(directory),
+    outputFile: options.output,
+    verbose: options.verbose,
+    quiet: options.quiet,
+    excludes: options.exclude,
+    includeHidden: options.includeHidden,
+    ...additionalOptions,
+  };
+}
+
 const setupCliProgram = (): Command => {
   const program = new Command();
 
@@ -201,97 +253,36 @@ const setupCliProgram = (): Command => {
     .version("0.0.1");
 
   // Generate command (default)
-  program
-    .command("generate")
-    .alias("gen")
-    .description("Generate a graph from markdown files once")
-    .argument(
-      "[directory]",
-      "Directory to scan for markdown files",
-      process.cwd(),
-    )
-    .option(
-      "-o, --output <file>",
-      "Output file path (default: .garden-graph.json)",
-    )
-    .option("-v, --verbose", "Enable verbose logging", false)
-    .option("-q, --quiet", "Suppress all output except errors", false)
-    .option("--exclude <patterns...>", "Patterns to exclude from scanning")
-    .option("--include-hidden", "Include hidden files and directories", false)
-    .action(
-      async (
-        directory: string,
-        options: {
-          output?: string;
-          verbose: boolean;
-          quiet: boolean;
-          exclude?: string[];
-          includeHidden: boolean;
-        },
-      ) => {
-        const cliOptions: CliOptions = {
-          targetDirectory: path.resolve(directory),
-          outputFile: options.output,
-          verbose: options.verbose,
-          quiet: options.quiet,
-          excludes: options.exclude,
-          includeHidden: options.includeHidden,
-        };
-
-        const result = await runCli(cliOptions);
-        if (!result.success) {
-          process.exit(1);
-        }
-      },
-    );
+  addCommonOptions(
+    program
+      .command("generate")
+      .alias("gen")
+      .description("Generate a graph from markdown files once"),
+  ).action(async (directory: string, options: CommonCommandOptions) => {
+    const cliOptions = buildCliOptions(directory, options);
+    const result = await runCli(cliOptions);
+    if (!result.success) {
+      process.exit(1);
+    }
+  });
 
   // Watch command
-  program
-    .command("watch")
-    .description("Watch for file changes and update graph automatically")
-    .argument(
-      "[directory]",
-      "Directory to scan for markdown files",
-      process.cwd(),
-    )
-    .option(
-      "-o, --output <file>",
-      "Output file path (default: .garden-graph.json)",
-    )
-    .option("-v, --verbose", "Enable verbose logging", false)
-    .option("-q, --quiet", "Suppress all output except errors", false)
-    .option("--exclude <patterns...>", "Patterns to exclude from scanning")
-    .option("--include-hidden", "Include hidden files and directories", false)
+  addCommonOptions(
+    program
+      .command("watch")
+      .description("Watch for file changes and update graph automatically"),
+  )
     .option(
       "--debounce <ms>",
       "Debounce delay for file changes in milliseconds",
       "300",
     )
-    .action(
-      async (
-        directory: string,
-        options: {
-          output?: string;
-          verbose: boolean;
-          quiet: boolean;
-          exclude?: string[];
-          includeHidden: boolean;
-          debounce: string;
-        },
-      ) => {
-        const cliOptions: CliOptions = {
-          targetDirectory: path.resolve(directory),
-          outputFile: options.output,
-          verbose: options.verbose,
-          quiet: options.quiet,
-          excludes: options.exclude,
-          includeHidden: options.includeHidden,
-          debounceMs: parseInt(options.debounce, 10),
-        };
-
-        await runWatch(cliOptions);
-      },
-    );
+    .action(async (directory: string, options: WatchCommandOptions) => {
+      const cliOptions = buildCliOptions(directory, options, {
+        debounceMs: parseInt(options.debounce, 10),
+      });
+      await runWatch(cliOptions);
+    });
 
   // Make generate the default command when no subcommand is provided
   program
@@ -307,32 +298,13 @@ const setupCliProgram = (): Command => {
     .option("-q, --quiet", "Suppress all output except errors", false)
     .option("--exclude <patterns...>", "Patterns to exclude from scanning")
     .option("--include-hidden", "Include hidden files and directories", false)
-    .action(
-      async (
-        directory: string,
-        options: {
-          output?: string;
-          verbose: boolean;
-          quiet: boolean;
-          exclude?: string[];
-          includeHidden: boolean;
-        },
-      ) => {
-        const cliOptions: CliOptions = {
-          targetDirectory: path.resolve(directory || process.cwd()),
-          outputFile: options.output,
-          verbose: options.verbose,
-          quiet: options.quiet,
-          excludes: options.exclude,
-          includeHidden: options.includeHidden,
-        };
-
-        const result = await runCli(cliOptions);
-        if (!result.success) {
-          process.exit(1);
-        }
-      },
-    );
+    .action(async (directory: string, options: CommonCommandOptions) => {
+      const cliOptions = buildCliOptions(directory || process.cwd(), options);
+      const result = await runCli(cliOptions);
+      if (!result.success) {
+        process.exit(1);
+      }
+    });
 
   return program;
 };
