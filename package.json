@@ -14,6 +14,9 @@
   "author": "Ian Homer",
   "type": "module",
   "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "markdown-graph": "./dist/cli.js"
   },
