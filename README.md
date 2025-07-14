@@ -3,12 +3,17 @@
 [![Test](https://github.com/adaptivekind/markdown-graph/workflows/Test/badge.svg)](https://github.com/adaptivekind/markdown-graph/actions)
 [![npm version](https://badge.fury.io/js/%40adaptivekind%2Fmarkdown-graph.svg)](https://badge.fury.io/js/%40adaptivekind%2Fmarkdown-graph)
 
-Generate a graph from a markdown repository with real-time file watching capabilities. This TypeScript library parses markdown files and creates a graph structure where each markdown file becomes a node, with wiki-style links between documents.
+Generate a graph JSON from a markdown repository with real-time file watching
+capabilities. This TypeScript library parses markdown files and creates a graph
+structure where each markdown file becomes a node, with wiki-style links between
+documents. This graph JSON can be used by the [Graph
+Gizmo](https://github.com/adaptivekind/graph-gizmo) to provide a visualisation
+of the graph.
 
 ## Features
 
 - 📝 **Parse markdown files** with frontmatter support
-- 🔗 **Generate graph structures** from markdown repositories
+- 🔗 **Generate graph JSON** from markdown repositories
 - 📊 **Graph interface** from `@adaptivekind/graph-schema`
 - 🎯 **CLI tool** for generating graphs from directories
 - 👀 **File watching** with real-time graph updates
