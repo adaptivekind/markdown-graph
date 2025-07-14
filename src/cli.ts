@@ -86,10 +86,8 @@ export const runWatch = async (options: CliOptions = {}): Promise<void> => {
     process.on("SIGINT", shutdown);
     process.on("SIGTERM", shutdown);
 
+    // Start watcher - this will never return as it returns Promise<never>
     await watcher.start();
-
-    // Keep the process running
-    return new Promise(() => {}); // Never resolves, keeps process alive
   } catch (error) {
     if (error instanceof Error) {
       reportError(error);

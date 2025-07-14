@@ -67,8 +67,9 @@ export class GraphWatcher {
 
   /**
    * Start watching for file changes
+   * Returns a Promise that never resolves to keep the process alive
    */
-  async start(): Promise<void> {
+  async start(): Promise<never> {
     try {
       // Initialize the graph
       consola.start(`Initializing graph from ${this.options.targetDirectory}`);
@@ -80,23 +81,30 @@ export class GraphWatcher {
         `Initial graph created with ${this.stats.nodeCount} nodes and ${this.stats.linkCount} links`,
       );
 
-      // Set up file watcher
-      const watchPattern = path.join(this.options.targetDirectory, "**/*.md");
-
-      this.watcher = chokidar.watch(watchPattern, {
+      this.watcher = chokidar.watch(this.options.targetDirectory, {
         persistent: true,
         ignoreInitial: true,
-        ignored: this.buildIgnorePatterns(),
+        ignored: (path: string, stats) =>
+          !!stats?.isFile() && !path.endsWith(".md"),
         awaitWriteFinish: {
           stabilityThreshold: 100,
           pollInterval: 50,
         },
+        usePolling: false,
       });
 
-      this.setupWatcherHandlers();
+      this.setupWatcherHandlers(this.watcher);
 
       consola.info(`Watching for changes in ${this.options.targetDirectory}`);
       consola.info("Press Ctrl+C to stop watching");
+
+      // Return a promise that never resolves to keep the process alive
+      return new Promise<never>(() => {
+        // Keep the event loop active with a timer to prevent process exit
+        setInterval(() => {
+          // Do nothing, just keep the event loop busy
+        }, 30000); // Check every 30 seconds
+      });
     } catch (error) {
       consola.error("Failed to start watcher:", error);
       throw error;
@@ -124,35 +132,38 @@ export class GraphWatcher {
   /**
    * Set up event handlers for the file watcher
    */
-  private setupWatcherHandlers(): void {
-    if (!this.watcher) return;
+  private setupWatcherHandlers(watcher: chokidar.FSWatcher): void {
+    // watcher.on("raw", (event, path, details) => {
+    //   // internal
+    //   consola.info("Raw event info:", event, path, details);
+    // });
 
-    this.watcher.on("add", (filePath: string) => {
+    watcher.on("add", (filePath: string) => {
       if (this.options.verbose) {
         consola.info(`File added: ${filePath}`);
       }
       this.handleFileChange(filePath, "added");
     });
 
-    this.watcher.on("change", (filePath: string) => {
+    watcher.on("change", (filePath: string) => {
       if (this.options.verbose) {
         consola.info(`File changed: ${filePath}`);
       }
       this.handleFileChange(filePath, "changed");
     });
 
-    this.watcher.on("unlink", (filePath: string) => {
+    watcher.on("unlink", (filePath: string) => {
       if (this.options.verbose) {
         consola.info(`File removed: ${filePath}`);
       }
       this.handleFileRemoval(filePath);
     });
 
-    this.watcher.on("error", (error: unknown) => {
+    watcher.on("error", (error: unknown) => {
       consola.error("Watcher error:", error);
     });
 
-    this.watcher.on("ready", () => {
+    watcher.on("ready", () => {
       if (this.options.verbose) {
         consola.debug("Initial scan complete. Ready for changes");
       }
@@ -171,8 +182,10 @@ export class GraphWatcher {
       this.updateStats();
       this.debouncedWriteGraph();
 
-      if (!this.options.verbose) {
-        const fileName = path.basename(filePath);
+      const fileName = path.basename(filePath);
+      if (this.options.verbose) {
+        consola.info(`Graph updated: ${fileName} ${changeType} (${filePath})`);
+      } else {
         consola.info(`Graph updated: ${fileName} ${changeType}`);
       }
     } catch (error) {
@@ -189,8 +202,10 @@ export class GraphWatcher {
       this.updateStats();
       this.debouncedWriteGraph();
 
-      if (!this.options.verbose) {
-        const fileName = path.basename(filePath);
+      const fileName = path.basename(filePath);
+      if (this.options.verbose) {
+        consola.info(`Graph updated: ${fileName} removed (${filePath})`);
+      } else {
         consola.info(`Graph updated: ${fileName} removed`);
       }
     } catch (error) {
@@ -217,6 +232,8 @@ export class GraphWatcher {
   private writeGraphToFile(): void {
     try {
       const graph = this.graphManager.getGraph();
+      const nodeCount = Object.keys(graph.nodes).length;
+      const linkCount = graph.links.length;
       const jsonContent = JSON.stringify(graph, null, 2);
 
       // Ensure output directory exists
@@ -228,7 +245,9 @@ export class GraphWatcher {
       fs.writeFileSync(this.options.outputFile, jsonContent);
 
       if (this.options.verbose) {
-        consola.debug(`Graph written to ${this.options.outputFile}`);
+        consola.debug(
+          `Graph written to ${this.options.outputFile} (${nodeCount} nodes, ${linkCount} links)`,
+        );
       }
     } catch (error) {
       consola.error("Failed to write graph file:", error);
@@ -238,19 +257,27 @@ export class GraphWatcher {
   /**
    * Build ignore patterns for chokidar
    */
-  private buildIgnorePatterns(): (string | RegExp)[] {
-    const patterns: (string | RegExp)[] = [];
+  private buildIgnorePatterns(filePath: string): boolean {
+    // Return true to ignore the file, false to watch it
 
-    // Add exclude patterns
-    this.options.excludes.forEach((exclude) => {
-      patterns.push(`**/${exclude}/**`);
-    });
-
-    // Add hidden file patterns if not including hidden files
-    if (!this.options.includeHidden) {
-      patterns.push(/(^|[/\\])\../); // Matches hidden files/directories
+    // Check exclude patterns
+    if (this.options.excludes) {
+      for (const exclude of this.options.excludes) {
+        if (filePath.includes(exclude)) {
+          return true;
+        }
+      }
     }
 
-    return patterns;
+    // Check hidden files
+    if (!this.options.includeHidden) {
+      const fileName = path.basename(filePath);
+      if (fileName.startsWith(".")) {
+        return true;
+      }
+    }
+
+    // Don't ignore this file - watch it
+    return false;
   }
 }

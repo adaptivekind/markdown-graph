@@ -4,19 +4,15 @@ echo "This script demonstrates live file changes for watch mode testing."
 echo "Make sure you have 'npm run demo:watch' running in another terminal first!"
 echo ""
 
-# Function to wait for user input
-wait_for_enter() {
-    echo "Press Enter to continue..."
-    read
-}
+datetimestamp=$(date "+%Y%m%d-%H%M%S")
 
 echo "Step 1: Adding a new document..."
-wait_for_enter
 
-cat > target/demo-docs/new-feature.md << 'EOF'
+cat >target/demo-docs/new-feature-${datetimestamp}.md <<EOF
 ---
 title: New Feature Documentation
 status: draft
+created: ${datetimestamp}
 ---
 
 # New Feature
@@ -32,9 +28,8 @@ echo "✓ Created new-feature.md"
 echo ""
 
 echo "Step 2: Modifying an existing document to add more links..."
-wait_for_enter
 
-cat >> target/demo-docs/getting-started.md << 'EOF'
+cat >>target/demo-docs/getting-started.md <<'EOF'
 
 ## New Section
 
@@ -47,9 +42,8 @@ echo "✓ Modified getting-started.md to add new links"
 echo ""
 
 echo "Step 3: Creating a document with multiple sections..."
-wait_for_enter
 
-cat > target/demo-docs/troubleshooting.md << 'EOF'
+cat >target/demo-docs/troubleshooting.md <<'EOF'
 # Troubleshooting Guide
 
 Common issues and solutions.
@@ -78,10 +72,9 @@ echo "✓ Created troubleshooting.md with multiple sections and links"
 echo ""
 
 echo "Step 4: Adding frontmatter to an existing file..."
-wait_for_enter
 
 # Create a temporary file with frontmatter added to changelog
-cat > target/demo-docs/changelog.md << 'EOF'
+cat >target/demo-docs/changelog.md <<'EOF'
 ---
 title: Project Changelog
 type: history
@@ -114,3 +107,4 @@ echo ""
 
 echo "Demo complete! Check your watch terminal to see how the graph updated."
 echo "You can also run 'npm run demo:generate' to see the final graph state."
+
