@@ -44,6 +44,7 @@ const ERROR_EXIT_CODE = 1;
 const DEFAULT_DEBOUNCE_STRING = "300";
 const PARSE_BASE_10 = 10;
 const JSON_INDENT_SPACES = 2;
+const UNEXPECTED_ERROR_MESSAGE = "Unexpected error:";
 
 // Logging levels for different modes
 const LOG_LEVELS = {
@@ -181,7 +182,7 @@ export const runWatch = async (options: CliOptions = {}): Promise<void> => {
     if (error instanceof Error) {
       reportError(error);
     } else {
-      consola.error("Unexpected error:", error);
+      consola.error(UNEXPECTED_ERROR_MESSAGE, error);
     }
     process.exit(ERROR_EXIT_CODE);
   }
@@ -376,7 +377,7 @@ const main = async (): Promise<void> => {
     if (error instanceof Error) {
       reportError(error);
     } else {
-      consola.error("Unexpected error:", error);
+      consola.error(UNEXPECTED_ERROR_MESSAGE, error);
     }
     process.exit(ERROR_EXIT_CODE);
   }
@@ -386,7 +387,7 @@ const main = async (): Promise<void> => {
 // Don't run during tests
 if (process.env.NODE_ENV !== "test") {
   main().catch((error) => {
-    consola.error("Unexpected error:", error);
+    consola.error(UNEXPECTED_ERROR_MESSAGE, error);
     process.exit(1);
   });
 }

@@ -120,13 +120,10 @@ export class FileRepository implements MarkdownRepository {
   }
 
   private shouldScanDirectory(directoryName: string): boolean {
-    if (this.options.excludes.includes(directoryName)) {
-      return false;
-    }
-    if (!this.options.includeHidden && directoryName.startsWith(".")) {
-      return false;
-    }
-    return true;
+    return (
+      !this.options.excludes.includes(directoryName) &&
+      (this.options.includeHidden || !directoryName.startsWith("."))
+    );
   }
 
   private async *findMarkdownFilesRecursively(
