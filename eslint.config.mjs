@@ -63,7 +63,7 @@ export default defineConfig([
       "sonarjs/prefer-while": "error",
       "sonarjs/no-collapsible-if": "warn",
       "sonarjs/no-collection-size-mischeck": "warn",
-      "sonarjs/no-duplicate-string": "warn",
+      "sonarjs/no-duplicate-string": "off",
       "sonarjs/no-duplicated-branches": "warn",
       "sonarjs/no-gratuitous-expressions": "warn",
       "sonarjs/no-identical-functions": "warn",
