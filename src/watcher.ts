@@ -1,4 +1,5 @@
 import * as chokidar from "chokidar";
+import { EventEmitter } from "events";
 import { FileRepository } from "./file-repository";
 import { IncrementalGraphManager } from "./incremental-graph-manager";
 import { consola } from "consola";
@@ -25,7 +26,7 @@ export interface WatchStats {
 /**
  * File system watcher that efficiently updates graph JSON when markdown files change
  */
-export class GraphWatcher {
+export class GraphWatcher extends EventEmitter {
   private watcher?: chokidar.FSWatcher;
   private graphManager: IncrementalGraphManager;
   private options: Required<WatchOptions>;
@@ -40,6 +41,7 @@ export class GraphWatcher {
   private debouncedWriteGraph: () => void;
 
   constructor(options: WatchOptions) {
+    super();
     this.options = {
       debounceMs: 300,
       excludes: ["node_modules", "dist", ".git"],
@@ -75,6 +77,11 @@ export class GraphWatcher {
       consola.start(`Initializing graph from ${this.options.targetDirectory}`);
       await this.graphManager.initialize();
       this.updateStats();
+
+      // Emit initialization complete event
+      this.emit("initialized", this.getStats());
+
+      // Write initial graph and emit event
       this.writeGraphToFile();
 
       consola.success(
@@ -167,6 +174,7 @@ export class GraphWatcher {
       if (this.options.verbose) {
         consola.debug("Initial scan complete. Ready for changes");
       }
+      this.emit("ready");
     });
   }
 
@@ -188,6 +196,13 @@ export class GraphWatcher {
       } else {
         consola.info(`Graph updated: ${fileName} ${changeType}`);
       }
+
+      // Emit file change event
+      this.emit("fileChanged", {
+        filePath,
+        changeType,
+        stats: this.getStats(),
+      });
     } catch (error) {
       consola.warn(`Failed to handle file ${changeType}: ${filePath}`, error);
     }
@@ -208,6 +223,13 @@ export class GraphWatcher {
       } else {
         consola.info(`Graph updated: ${fileName} removed`);
       }
+
+      // Emit file removal event
+      this.emit("fileChanged", {
+        filePath,
+        changeType: "removed",
+        stats: this.getStats(),
+      });
     } catch (error) {
       consola.warn(`Failed to handle file removal: ${filePath}`, error);
     }
@@ -249,6 +271,13 @@ export class GraphWatcher {
           `Graph written to ${this.options.outputFile} (${nodeCount} nodes, ${linkCount} links)`,
         );
       }
+
+      // Emit graph written event
+      this.emit("graphWritten", {
+        outputFile: this.options.outputFile,
+        nodeCount,
+        linkCount,
+      });
     } catch (error) {
       consola.error("Failed to write graph file:", error);
     }

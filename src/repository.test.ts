@@ -11,6 +11,7 @@ import type { DocumentReference } from "./types";
 import { FileRepository } from "./file-repository";
 import { InMemoryRepository } from "./memory-repository";
 import fs from "fs";
+import os from "os";
 import path from "path";
 
 describe("FileRepository", () => {
@@ -96,7 +97,9 @@ describe("FileRepository", () => {
     let tempDir: string;
 
     beforeEach(() => {
-      tempDir = fs.mkdtempSync("test-repo-");
+      tempDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), "markdown-graph-test-repository-"),
+      );
       repository = new FileRepository(tempDir);
     });
 

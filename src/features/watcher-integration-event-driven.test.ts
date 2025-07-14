@@ -1,12 +1,20 @@
 import { GraphWatcher } from "../watcher";
 import fs from "fs";
 import path from "path";
-import { setTimeout } from "timers/promises";
 
-describe("GraphWatcher Integration", () => {
+interface FileChangeEventData {
+  filePath: string;
+  changeType: "added" | "changed" | "removed";
+  stats: {
+    nodeCount: number;
+    linkCount: number;
+  };
+}
+
+describe("GraphWatcher Integration (Event-Driven)", () => {
   const testDir = path.join(
     __dirname,
-    "../../target/graphwatcher-integration-test",
+    "../../target/graphwatcher-integration-test-events",
   );
   const outputFile = path.join(testDir, ".garden-graph.json");
   let watcher: GraphWatcher;
@@ -26,6 +34,59 @@ describe("GraphWatcher Integration", () => {
     }
   });
 
+  // Helper function to wait for a specific event
+  const waitForEvent = <T = unknown>(
+    emitter: GraphWatcher,
+    eventName: string,
+    timeout = 5000,
+  ): Promise<T> => {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        reject(new Error(`Timeout waiting for event: ${eventName}`));
+      }, timeout);
+
+      emitter.once(eventName, (data) => {
+        clearTimeout(timer);
+        resolve(data);
+      });
+    });
+  };
+
+  // Helper function to wait for initialization and first graph write
+  const waitForInitialization = async (
+    watcher: GraphWatcher,
+  ): Promise<void> => {
+    // Set up all promises before starting, to avoid race conditions
+    const initializedPromise = waitForEvent(watcher, "initialized");
+    const graphWrittenPromise = waitForEvent(watcher, "graphWritten");
+    const readyPromise = waitForEvent(watcher, "ready");
+
+    // Now start the watcher
+    watcher.start();
+
+    // Wait for all events
+    await initializedPromise;
+    await graphWrittenPromise;
+    await readyPromise;
+  };
+
+  // Helper function to wait for a file change to be processed
+  const waitForFileChange = async (
+    watcher: GraphWatcher,
+  ): Promise<FileChangeEventData> => {
+    const fileChangePromise = waitForEvent<FileChangeEventData>(
+      watcher,
+      "fileChanged",
+    );
+    const graphWrittenPromise = waitForEvent(watcher, "graphWritten");
+
+    // Wait for both the file change event and the graph write
+    const fileChangeData = await fileChangePromise;
+    await graphWrittenPromise;
+
+    return fileChangeData;
+  };
+
   it("should initialize graph from existing files", async () => {
     // Create initial test files
     fs.writeFileSync(
@@ -43,11 +104,8 @@ describe("GraphWatcher Integration", () => {
       verbose: false,
     });
 
-    // Start watcher (but don't await since it never resolves)
-    watcher.start();
-
-    // Wait for initialization
-    await setTimeout(500);
+    // Start watcher and wait for initialization
+    await waitForInitialization(watcher);
 
     // Check that output file was created
     expect(fs.existsSync(outputFile)).toBe(true);
@@ -59,9 +117,8 @@ describe("GraphWatcher Integration", () => {
     expect(graph.links[0].source).toBe("doc2");
     expect(graph.links[0].target).toBe("doc1");
 
-    // Cleanup
     await watcher.stop();
-  }, 10000);
+  });
 
   it("should detect and update graph when files are added", async () => {
     // Start with one file
@@ -77,25 +134,23 @@ describe("GraphWatcher Integration", () => {
       debounceMs: 100, // Faster for testing
     });
 
-    // Start watcher
-    watcher.start();
-
-    // Wait for initialization
-    await setTimeout(300);
+    // Start watcher and wait for initialization
+    await waitForInitialization(watcher);
 
     // Verify initial state
     let graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
     expect(Object.keys(graph.nodes)).toHaveLength(1);
     expect(Object.keys(graph.nodes)).toContain("existing");
 
-    // Add a new file
+    // Add a new file and wait for the change to be processed
     fs.writeFileSync(
       path.join(testDir, "new-doc.md"),
       "# New Document\nJust added with link to [[existing]]",
     );
 
-    // Wait for file change detection and debounce
-    await setTimeout(800);
+    const changeData = await waitForFileChange(watcher);
+    expect(changeData.changeType).toBe("added");
+    expect(changeData.filePath).toContain("new-doc.md");
 
     // Check updated graph
     graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
@@ -106,7 +161,7 @@ describe("GraphWatcher Integration", () => {
     expect(graph.links[0].target).toBe("existing");
 
     await watcher.stop();
-  }, 15000);
+  });
 
   it("should detect and update graph when files are modified", async () => {
     const docPath = path.join(testDir, "changeable.md");
@@ -123,8 +178,7 @@ describe("GraphWatcher Integration", () => {
       debounceMs: 100,
     });
 
-    watcher.start();
-    await setTimeout(500);
+    await waitForInitialization(watcher);
 
     // Verify initial state
     let graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
@@ -138,8 +192,9 @@ describe("GraphWatcher Integration", () => {
       "# Updated Title\nUpdated content with link to [[existing-target]]",
     );
 
-    // Wait for change detection
-    await setTimeout(800);
+    const changeData = await waitForFileChange(watcher);
+    expect(changeData.changeType).toBe("changed");
+    expect(changeData.filePath).toContain("changeable.md");
 
     // Check updated graph
     graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
@@ -150,7 +205,7 @@ describe("GraphWatcher Integration", () => {
     expect(graph.links[0].target).toBe("existing-target");
 
     await watcher.stop();
-  }, 15000);
+  });
 
   it("should detect and update graph when files are deleted", async () => {
     const doc1Path = path.join(testDir, "doc1.md");
@@ -170,8 +225,7 @@ describe("GraphWatcher Integration", () => {
       debounceMs: 100,
     });
 
-    watcher.start();
-    await setTimeout(500);
+    await waitForInitialization(watcher);
 
     // Verify initial state
     let graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
@@ -181,8 +235,9 @@ describe("GraphWatcher Integration", () => {
     // Delete a file
     fs.unlinkSync(doc1Path);
 
-    // Wait for change detection
-    await setTimeout(800);
+    const changeData = await waitForFileChange(watcher);
+    expect(changeData.changeType).toBe("removed");
+    expect(changeData.filePath).toContain("doc1.md");
 
     // Check updated graph
     graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
@@ -193,7 +248,7 @@ describe("GraphWatcher Integration", () => {
     expect(graph.links).toHaveLength(0);
 
     await watcher.stop();
-  }, 15000);
+  });
 
   it("should handle rapid file changes with debouncing", async () => {
     const docPath = path.join(testDir, "rapid-changes.md");
@@ -205,27 +260,36 @@ describe("GraphWatcher Integration", () => {
       targetDirectory: testDir,
       outputFile,
       verbose: false,
-      debounceMs: 300, // Higher debounce for this test
+      debounceMs: 200, // Higher debounce for this test
     });
 
-    watcher.start();
-    await setTimeout(500);
+    await waitForInitialization(watcher);
+
+    // Set up a promise to wait for the last change to be processed
+    let lastChangePromise: Promise<FileChangeEventData>;
 
     // Make rapid changes
     for (let i = 1; i <= 5; i++) {
       fs.writeFileSync(docPath, `# Change ${i}\nContent ${i}`);
-      await setTimeout(50); // Small delay between changes
+
+      // For the last change, set up the wait
+      if (i === 5) {
+        lastChangePromise = waitForFileChange(watcher);
+      }
+
+      // Small delay between changes (less than debounce time)
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
-    // Wait for debounce to settle
-    await setTimeout(1000);
+    // Wait for the final debounced change to be processed
+    await lastChangePromise!;
 
     // Check that graph reflects final state
     const graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
     expect(graph.nodes["rapid-changes"].label).toBe("Change 5");
 
     await watcher.stop();
-  }, 15000);
+  });
 
   it("should ignore non-markdown files", async () => {
     // Create markdown and non-markdown files
@@ -243,22 +307,33 @@ describe("GraphWatcher Integration", () => {
       debounceMs: 100,
     });
 
-    watcher.start();
-    await setTimeout(500);
+    await waitForInitialization(watcher);
 
     // Only markdown file should be in graph
     const graph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
     expect(Object.keys(graph.nodes)).toHaveLength(1);
     expect(Object.keys(graph.nodes)).toContain("doc");
 
-    // Add another non-markdown file
+    // Add another non-markdown file - this should not trigger any events
     fs.writeFileSync(path.join(testDir, "config.json"), "{}");
-    await setTimeout(500);
+
+    // Wait a short time to ensure no change event is emitted
+    let eventEmitted = false;
+    const eventPromise = new Promise((resolve) => {
+      watcher.once("fileChanged", () => {
+        eventEmitted = true;
+        resolve(true);
+      });
+      setTimeout(() => resolve(false), 300);
+    });
+
+    await eventPromise;
+    expect(eventEmitted).toBe(false);
 
     // Graph should be unchanged
     const updatedGraph = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
     expect(Object.keys(updatedGraph.nodes)).toHaveLength(1);
 
     await watcher.stop();
-  }, 10000);
+  });
 });
