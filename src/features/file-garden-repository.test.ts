@@ -35,6 +35,7 @@ describe("file garden repository", () => {
     expect(graph.nodes.note1).toBeDefined();
     expect(graph.nodes.note2).toBeDefined();
     expect(graph.nodes.note3).toBeDefined();
+    expect(graph.nodes.note4).toBeDefined();
 
     // Check node labels
     expect(graph.nodes.note1.label).toBe("Note One");

@@ -107,10 +107,8 @@ describe("CLI", () => {
     expect(content.nodes.note1.label).toBe("Note One");
     expect(content.nodes.note2.label).toBe("Note Two");
     expect(content.nodes.note3.label).toBe("Note Three");
-    expect(content.nodes["subdirectory-note4"].label).toBe(
-      "Note Four in Subdirectory",
-    );
-    expect(content.nodes["subdirectory-note5"].label).toBe("Note Five");
+    expect(content.nodes["note4"].label).toBe("Note Four in Subdirectory");
+    expect(content.nodes["note5"].label).toBe("Note Five");
   });
 
   it("should generate graph in current directory when no args provided", async () => {

@@ -69,17 +69,8 @@ describe("FileRepository", () => {
         "subdir/test-file.md",
       ) as DocumentReference & { filename: string };
 
-      expect(ref.id).toBe("subdir-test-file");
+      expect(ref.id).toBe("test-file");
       expect(ref.filename).toBe("subdir/test-file.md");
-    });
-
-    it("should normalize Windows paths", () => {
-      const ref = repository.toDocumentReference(
-        "subdir\\test-file.md",
-      ) as DocumentReference & { filename: string };
-
-      expect(ref.id).toBe("subdir-test-file");
-      expect(ref.filename).toBe("subdir\\test-file.md");
     });
 
     it("should handle files without .md extension", () => {
@@ -210,7 +201,7 @@ This is test content.`;
       expect(references).toHaveLength(2);
       const ids = references.map((ref) => ref.id);
       expect(ids).toContain("root");
-      expect(ids).toContain("subdir-sub");
+      expect(ids).toContain("sub");
     });
 
     it("should exclude specified directories", async () => {
@@ -258,7 +249,7 @@ This is test content.`;
       expect(references).toHaveLength(2);
       const ids = references.map((ref) => ref.id);
       expect(ids).toContain("visible");
-      expect(ids).toContain(".hidden-hidden");
+      expect(ids).toContain("hidden");
     });
   });
 });

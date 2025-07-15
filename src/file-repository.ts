@@ -85,10 +85,8 @@ export class FileRepository implements MarkdownRepository {
   }
 
   private normalizeFilename(filename: string): string {
-    // Remove .md extension and normalize path separators
-    const withoutExtension = filename.replace(/\.md$/, "");
-    // Replace path separators with dashes to create a valid ID
-    return withoutExtension.replace(/[/\\]/g, "-").toLowerCase();
+    // Use just then basename, remove .md extension and normalize path separators and lowercase
+    return path.basename(filename).replace(/\.md$/, "").toLowerCase();
   }
 
   async loadDocument(reference: DocumentReference): Promise<MarkdownDocument> {

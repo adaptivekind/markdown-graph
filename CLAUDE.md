@@ -37,6 +37,26 @@ directory, including recursive scanning of child directories.
    MUST explain what you feel should be done. Only proceed with the fixes when
    explicitly asked to.
 
+### Code Strategy
+
+- Codebase > Documentation as source of truth.
+- you MUST not use the `any` type.
+- Sort typescript imports by putting multiple imports first. After that single
+  imports should be sorted starting with a imports starting with a capital letter,
+  after which single imports starting with a lower case letter should be sorted.
+- Prefer feature tests which test the public interfaces for this package as opposed
+  to unit tests based on internal functions. This asserts the desired behaviour of
+  the package.
+- Markdown should have a `textwidth` of 80 characters
+
+## Engineering guidance
+
+- NEVER assume, always question
+- be BRUTALLY HONEST in assessments
+- NO NONSENSE, NO HYPE, NO MARKETING SPEAK - prefer hard facts and stay
+  objective
+- Use slash commands for consistent workflows
+
 ## Commands
 
 - `npm test` - Run all tests using Jest.
@@ -49,18 +69,6 @@ directory, including recursive scanning of child directories.
 - Command line interface implemented in `./src/cli.ts`
 - Library public interfaces described in `.src/index.ts`. This includes
   `createGarden` which is the primary programmatic entry point.
-
-## Code Strategy
-
-- Codebase > Documentation as source of truth.
-- you MUST not use the `any` type.
-- Sort typescript imports by putting multiple imports first. After that single
-  imports should be sorted starting with a imports starting with a capital letter,
-  after which single imports starting with a lower case letter should be sorted.
-- Prefer feature tests which test the public interfaces for this package as opposed
-  to unit tests based on internal functions. This asserts the desired behaviour of
-  the package.
-- Markdown should have a `textwidth` of 80 characters
 
 ## Test Strategy
 
@@ -93,11 +101,3 @@ directory, including recursive scanning of child directories.
 - Content in markdown files should not have more than 80 characters on a line.
 - If any processes, such as testing generate, create files, these should be
   written to the target/ folder so that they can be easily clean up.
-
-## Engineering guidance
-
-- NEVER assume, always question
-- be BRUTALLY HONEST in assessments
-- NO NONSENSE, NO HYPE, NO MARKETING SPEAK - prefer hard facts and stay
-  objective
-- Use slash commands for consistent workflows
