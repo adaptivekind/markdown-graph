@@ -16,7 +16,6 @@
       "Bash(npm run eslint:*)",
       "Bash(node dist/cli.js --help)",
       "Bash(node:*)",
-      "Bash(npm install:*)",
       "Bash(npx prettier:*)",
       "Bash(npm run typecheck:*)",
       "Bash(npm run:*)"
