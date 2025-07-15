@@ -4,12 +4,12 @@ This file provides guidance to any agent modifying code in this repository.
 
 ## Purpose
 
-This package generate graph JSON from markdown repositories.
+This package generates graph JSON from markdown repositories.
 
 ## Architecture
 
 Markdown content is parsed using the "unified" framework, which works with
-content as Abstract Syntax Trees (AST). This provide the capability to extra
+content as Abstract Syntax Trees (AST). This provide the capability to extract
 content and links from Markdown documents. These Markdown documents are
 converted to Nodes and Links and assembled in a Graph.
 
@@ -41,15 +41,16 @@ directory, including recursive scanning of child directories.
 
 - `npm test` - Run all tests using Jest.
 - `npm run lint` - Check that files are linted correctly.
-- `npm build` - Build the package with rollup.
+- `npm run build` - Build the package with rollup.
+- `npm run dev` - Run the CLI in dev mode.
 
-## Public interfaces
+## Public Interfaces
 
 - Command line interface implemented in `./src/cli.ts`
 - Library public interfaces described in `.src/index.ts`. This includes
-  `createGarden` which is the primary programmatic entry point of ``
+  `createGarden` which is the primary programmatic entry point.
 
-## Code Guidance
+## Code Strategy
 
 - Codebase > Documentation as source of truth.
 - you MUST not use the `any` type.
@@ -59,20 +60,30 @@ directory, including recursive scanning of child directories.
 - Prefer feature tests which test the public interfaces for this package as opposed
   to unit tests based on internal functions. This asserts the desired behaviour of
   the package.
-- Markdown should has a `textwidth` of 80 characters
+- Markdown should have a `textwidth` of 80 characters
 
-## Test Guidance
+## Test Strategy
 
 - See jest.config.js for jest configuration
 - Extra setup for jest is in jest.config.js
 - Helper functions in `feature-helpers.ts` provide utilities like `graphFrom()`
 - Test files use `.test.ts` extension
+- Feature tests in `src/features/` directory
+- Use `graphFrom()` helper for test setup
+- Test files written to `target/` directory
+- Mock file system operations only when necessary
 
 ## Technical Design
 
 - This package is implemented with TypeScript
 - See tsconfig.json for TypeScript configuration
 - See the dependencies in package.json for packages used
+
+## Performance Guidelines
+
+- Use controlled concurrency for file operations
+- Prefer batch processing for large repositories
+- Implement debouncing for file watchers
 
 ## Development Notes
 
