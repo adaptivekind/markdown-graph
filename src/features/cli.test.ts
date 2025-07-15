@@ -211,6 +211,7 @@ describe("CLI", () => {
       verbose: true,
     });
 
+    expect(result.message).toMatch(/^Graph generated and written/);
     expect(result.success).toBe(true);
     expect(logs.start).toHaveLength(1);
     expect(logs.debug).toHaveLength(3); // Target directory, output file, nodes

@@ -10,27 +10,15 @@ import { toRepository } from "./repository-factory";
 async function generateGraph(repository: MarkdownRepository): Promise<Graph> {
   const builder = new GraphBuilder();
 
-  // Collect all references first to enable concurrent processing
-  const references = [];
-  for await (const reference of repository.findAll()) {
-    references.push(reference);
-  }
-
-  // Process files concurrently with controlled concurrency
-  const CONCURRENCY_LIMIT = 10;
-  const documents = [];
-
-  for (let i = 0; i < references.length; i += CONCURRENCY_LIMIT) {
-    const batch = references.slice(i, i + CONCURRENCY_LIMIT);
-    const batchDocuments = await Promise.all(
-      batch.map((ref) => repository.loadDocument(ref)),
+  const promises = [];
+  for await (const reference of repository.findAll())
+    promises.push(
+      repository.loadDocument(reference).then((document) => {
+        builder.addDocument(document);
+      }),
     );
-    documents.push(...batchDocuments);
-  }
 
-  // Add all documents to the builder
-  documents.forEach((document) => builder.addDocument(document));
-
+  await Promise.all(promises);
   return builder.build();
 }
 
