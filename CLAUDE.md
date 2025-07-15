@@ -1,57 +1,92 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
+This file provides guidance to any agent modifying code in this repository.
+
+## Purpose
+
+This package generate graph JSON from markdown repositories.
+
+## Architecture
+
+Markdown content is parsed using the "unified" framework, which works with
+content as Abstract Syntax Trees (AST). This provide the capability to extra
+content and links from Markdown documents. These Markdown documents are
+converted to Nodes and Links and assembled in a Graph.
+
+The Node, Link and Graph interfaces are provided by the
+`@adaptivekind/graph-schema` package.
+
+The file repository is defined as all the Markdown files within a given
+directory, including recursive scanning of child directories.
+
+## Universal Directives
+
+1. you MUST write code that is clear and explains meaning - prefer readability
+   over condensed code.
+2. you MUST test, lint and build before declaring done.
+3. you MUST handle errors explicitly.
+4. you MUST code in a way that matches the style of the existing code.
+5. you MUST code in a way that makes it easier for future coders.
+6. you MUST focus on the task at hand, do not make changes that do not help
+   towards this goal.
+7. you SHOULD ensure a test exists that describes the intended behaviour, before
+   writing the code that delivers that behaviour. Once the test is passes you
+   should refactor the implementation to ensure the universal directives are met.
+8. you SHOULD from time to time review the code base holistically to check
+   whether it satisfies the universal directives. If you have recommendation you
+   MUST explain what you feel should be done. Only proceed with the fixes when
+   explicitly asked to.
 
 ## Commands
 
-### Testing
-
 - `npm test` - Run all tests using Jest.
-- `npm build` - Build the package with rollup.
 - `npm run lint` - Check that files are linted correctly.
-- `npm run knip` - Declutter the project, e.g. removing redundancy.
+- `npm build` - Build the package with rollup.
 
-### TypeScript
+## Public interfaces
 
-- The project uses TypeScript with ES modules and strict mode enabled
-- Root source directory is `./src`
-- Target: ES2020
+- Command line interface implemented in `./src/cli.ts`
+- Library public interfaces described in `.src/index.ts`. This includes
+  `createGarden` which is the primary programmatic entry point of ``
+
+## Code Guidance
+
+- Codebase > Documentation as source of truth.
+- you MUST not use the `any` type.
+- Sort typescript imports by putting multiple imports first. After that single
+  imports should be sorted starting with a imports starting with a capital letter,
+  after which single imports starting with a lower case letter should be sorted.
+- Prefer feature tests which test the public interfaces for this package as opposed
+  to unit tests based on internal functions. This asserts the desired behaviour of
+  the package.
+- Markdown should has a `textwidth` of 80 characters
+
+## Test Guidance
+
+- See jest.config.js for jest configuration
+- Extra setup for jest is in jest.config.js
+- Helper functions in `feature-helpers.ts` provide utilities like `graphFrom()`
+- Test files use `.test.ts` extension
+
+## Technical Design
+
+- This package is implemented with TypeScript
+- See tsconfig.json for TypeScript configuration
+- See the dependencies in package.json for packages used
 
 ## Development Notes
 
 - The codebase uses ES modules (`"type": "module"` in package.json)
 - Gray-matter caching is explicitly disabled by setting language option
 - Strict TypeScript configuration with isolated modules
-- Sort typescript imports by putting multiple imports first. After that single
-  imports should be sorted starting with a imports starting with a capital letter,
-  after which singles imports starting with a lower case letter should be sorted.
 - Content in markdown files should not have more than 80 characters on a line.
 - If any processes, such as testing generate, create files, these should be
   written to the target/ folder so that they can be easily clean up.
-- Avoid use of any, instead set up types properly.
-- Once you have made changes please check that the following pass
-  1. `npm test`
-  2. `npm run lint`
-  3. `npm build`
-  4. `npm run knip`
 
-## Test Architecture
+## Engineering guidance
 
-- Tests are located in `src/features/` directory
-- Helper functions in `feature-helpers.ts` provide utilities like `graphFrom()`
-- Jest configuration uses JSdom environment and treats `.ts` files as ES modules
-- Test files use `.test.ts` extension
-- Prefer feature tests which test the entry points for this package as opposed
-  to unit tests based on internal structure. This asserts the desired behaviour of
-  the package.
-
-## Architecture
-
-This is a TypeScript library for generating graphs from markdown repositories.
-
-### Key Concepts
-
-- **Graph Structure**: Uses `@adaptivekind/graph-schema` with nodes and links
-- **Frontmatter**: YAML frontmatter is parsed with explicit language setting to disable caching
-- **Repository Types**: Supports both "file" and "inmemory" repository types
+- NEVER assume, always question
+- be BRUTALLY HONEST in assessments
+- NO NONSENSE, NO HYPE, NO MARKETING SPEAK - prefer hard facts and stay
+  objective
+- Use slash commands for consistent workflows
