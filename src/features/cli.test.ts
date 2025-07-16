@@ -6,6 +6,7 @@ import path from "path";
 import { runCli } from "../cli";
 
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");
+const testDir = path.join(__dirname, "../../target/cli-test");
 
 // Configure Jest timeout for this test suite
 jest.setTimeout(15000);
@@ -43,8 +44,21 @@ const callCli = async (options: CliOptions = {}) => {
   };
 };
 
+function getTestFilenameAndRemoveExisting(
+  filename: string,
+  targetDir = testDir,
+) {
+  const absoluteFilename = path.join(targetDir, filename);
+  if (fs.existsSync(absoluteFilename)) {
+    fs.rmSync(absoluteFilename);
+  }
+  return absoluteFilename;
+}
+
 describe("CLI", () => {
   beforeEach(() => {
+    fs.mkdirSync(testDir, { recursive: true });
+
     // Reset consola level
     consola.level = 3;
 
@@ -76,15 +90,20 @@ describe("CLI", () => {
     jest.clearAllMocks();
   });
 
-  it("should generate graph in target directory by default", async () => {
-    const { result, logs } = await callCli({ targetDirectory: testGardenPath });
+  it("should generate graph in garden directory by default", async () => {
+    const outputFile = getTestFilenameAndRemoveExisting(
+      ".garden-graph.json",
+      testGardenPath,
+    );
+
+    const { result, logs } = await callCli({
+      targetDirectory: testGardenPath,
+    });
 
     expect(result.success).toBe(true);
     expect(result.nodeCount).toBe(5); // Now includes subdirectory files
     expect(result.linkCount).toBe(6); // Additional links from subdirectory files
-    expect(result.outputFile).toBe(
-      path.join(testGardenPath, ".garden-graph.json"),
-    );
+    expect(result.outputFile).toBe(outputFile);
 
     // Check logging calls
     expect(logs.start).toHaveLength(1);
@@ -95,11 +114,10 @@ describe("CLI", () => {
     expect(logs.success[0][0]).toContain("Graph generated and written to");
 
     // Check that the file was created in the garden directory
-    const outputPath = path.join(testGardenPath, ".garden-graph.json");
-    expect(fs.existsSync(outputPath)).toBe(true);
+    expect(fs.existsSync(outputFile)).toBe(true);
 
     // Verify the content
-    const content = JSON.parse(fs.readFileSync(outputPath, "utf-8"));
+    const content = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
     expect(content.nodes).toBeDefined();
     expect(content.links).toBeDefined();
     expect(Object.keys(content.nodes)).toHaveLength(5);
@@ -112,6 +130,10 @@ describe("CLI", () => {
   });
 
   it("should generate graph in current directory when no args provided", async () => {
+    const outputFile = getTestFilenameAndRemoveExisting(
+      ".garden-graph.json",
+      ".",
+    );
     const { result, logs } = await callCli();
 
     expect(result.success).toBe(true);
@@ -119,8 +141,7 @@ describe("CLI", () => {
     expect(logs.success).toHaveLength(1);
 
     // Check that the file was created in the current directory
-    const outputPath = path.join(process.cwd(), ".garden-graph.json");
-    expect(fs.existsSync(outputPath)).toBe(true);
+    expect(fs.existsSync(outputFile)).toBe(true);
   });
 
   it("should use custom output file when -o option provided", async () => {
@@ -161,6 +182,8 @@ describe("CLI", () => {
     // This error is handled in the main() function argument parsing,
     // not in runCli, so we'll test that when no output is provided
     // it defaults to the target directory
+    //
+
     const { result } = await callCli({
       targetDirectory: testGardenPath,
     });
@@ -176,8 +199,15 @@ describe("CLI", () => {
     const emptyDir = path.join(process.cwd(), "temp-empty-dir");
     fs.mkdirSync(emptyDir, { recursive: true });
 
+    const outputFile = getTestFilenameAndRemoveExisting(
+      ".garden-graph-empty.json",
+    );
+
     try {
-      const { result, logs } = await callCli({ targetDirectory: emptyDir });
+      const { result, logs } = await callCli({
+        targetDirectory: emptyDir,
+        outputFile,
+      });
 
       expect(result.success).toBe(true);
       expect(result.nodeCount).toBe(0);
@@ -185,16 +215,15 @@ describe("CLI", () => {
       expect(logs.info[0][0]).toContain("Found 0 nodes and 0 links");
 
       // Check that the file was created
-      const outputPath = path.join(emptyDir, ".garden-graph.json");
-      expect(fs.existsSync(outputPath)).toBe(true);
+      expect(fs.existsSync(outputFile)).toBe(true);
 
       // Verify empty graph
-      const content = JSON.parse(fs.readFileSync(outputPath, "utf-8"));
+      const content = JSON.parse(fs.readFileSync(outputFile, "utf-8"));
       expect(content.nodes).toEqual({});
       expect(content.links).toEqual([]);
 
       // Clean up
-      fs.unlinkSync(outputPath);
+      fs.unlinkSync(outputFile);
     } finally {
       fs.rmSync(emptyDir, { recursive: true });
     }
@@ -204,6 +233,7 @@ describe("CLI", () => {
     const { result, logs } = await callCli({
       targetDirectory: testGardenPath,
       verbose: true,
+      outputFile: getTestFilenameAndRemoveExisting(".garden-graph-v.json"),
     });
 
     expect(result.message).toMatch(/^Graph generated and written/);
@@ -212,7 +242,9 @@ describe("CLI", () => {
     expect(logs.debug).toHaveLength(3); // Target directory, output file, nodes
     expect(logs.debug[0][0]).toContain("Target directory:");
     expect(logs.debug[1][0]).toContain("Output file:");
-    expect(logs.debug[2][0]).toContain("Nodes: note1, note2, note3");
+    expect(logs.debug[2][0]).toContain(
+      "Nodes: note1, note2, note3, note4, note5",
+    );
     expect(logs.success).toHaveLength(1);
   });
 
@@ -220,6 +252,9 @@ describe("CLI", () => {
     const { result, logs } = await callCli({
       targetDirectory: testGardenPath,
       verbose: true,
+      outputFile: getTestFilenameAndRemoveExisting(
+        ".garden-graph-verbose.json",
+      ),
     });
 
     expect(result.success).toBe(true);
@@ -230,23 +265,25 @@ describe("CLI", () => {
   });
 
   it("should suppress output when -q flag is used", async () => {
+    const outputFile = getTestFilenameAndRemoveExisting(".garden-graph-q.json");
     const { result } = await callCli({
       targetDirectory: testGardenPath,
       quiet: true,
+      outputFile,
     });
 
     expect(result.success).toBe(true);
     expect(consola.level).toBe(0); // Quiet mode
 
     // Check that the file was still created
-    const outputPath = path.join(testGardenPath, ".garden-graph.json");
-    expect(fs.existsSync(outputPath)).toBe(true);
+    expect(fs.existsSync(outputFile)).toBe(true);
   });
 
   it("should suppress output when --quiet flag is used", async () => {
     const { result } = await callCli({
       targetDirectory: testGardenPath,
       quiet: true,
+      outputFile: getTestFilenameAndRemoveExisting(".garden-graph-quiet.json"),
     });
 
     expect(result.success).toBe(true);

@@ -217,7 +217,9 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
     if (processedOptions.verbose) {
       consola.debug(`Target directory: ${processedOptions.targetDirectory}`);
       consola.debug(`Output file: ${processedOptions.outputFile}`);
-      consola.debug(`Nodes: ${Object.keys(garden.graph.nodes).join(", ")}`);
+      consola.debug(
+        `Nodes: ${Object.keys(garden.graph.nodes).sort().join(", ")}`,
+      );
     }
 
     // Write graph to JSON file
