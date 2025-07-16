@@ -20,4 +20,18 @@ describe("multiple sections", () => {
     expect(graph.nodes.foo.label).toBe("Foo");
     expect(graph.nodes["foo#foo-section"].label).toBe("Foo section");
   });
+
+  it("subsections should have parent-child links", async () => {
+    const graph: Graph = await graphFrom({
+      foo,
+    });
+
+    // Should have one parent-child link (subsection -> parent)
+    const parentChildLinks = graph.links.filter(
+      (link) => link.source === "foo#foo-section" && link.target === "foo",
+    );
+    expect(parentChildLinks).toHaveLength(1);
+    expect(parentChildLinks[0].source).toBe("foo#foo-section");
+    expect(parentChildLinks[0].target).toBe("foo");
+  });
 });

@@ -78,7 +78,7 @@ This section also links to [[third-doc]].`,
         "third-doc": "# Third Document\nEven more content.",
       });
 
-      expect(graph.links).toHaveLength(3);
+      expect(graph.links).toHaveLength(4);
 
       const linkTargets = graph.links.map((link) => link.target);
       expect(linkTargets).toContain("other-doc");
@@ -165,7 +165,7 @@ No links here.`,
       const linkCount = graph.links.length;
 
       expect(nodeCount).toBe(6); // stats-doc + 2 sections + 3 other docs
-      expect(linkCount).toBe(3); // 3 total links
+      expect(linkCount).toBe(5); // 3 total links
     });
   });
 

@@ -65,6 +65,27 @@ export function createExplicitLinks(
 }
 
 /**
+ * Create parent-child link if section is a subsection
+ */
+export function createParentLink(
+  document: MarkdownDocument,
+  section: MarkdownSection,
+): { source: string; target: string } | null {
+  if (section.depth === ROOT_SECTION_DEPTH) {
+    // Root sections have no parent
+    return null;
+  }
+
+  const childNodeId = createNodeId(document, section);
+  const parentNodeId = document.id; // Parent is always the document root
+
+  return {
+    source: childNodeId,
+    target: parentNodeId,
+  };
+}
+
+/**
  * Get statistics about a graph
  */
 export function getGraphStats(graph: {

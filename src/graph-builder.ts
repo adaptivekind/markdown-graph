@@ -3,6 +3,7 @@ import type { MarkdownDocument, MarkdownSection } from "./types";
 import {
   createExplicitLinks,
   createNode,
+  createParentLink,
   getGraphStats,
 } from "./graph-operations";
 import { naturalProcess } from "./natural-language";
@@ -73,6 +74,12 @@ export class GraphBuilder {
       // Add explicit links
       const explicitLinks = createExplicitLinks(document, section);
       this.graph.links.push(...explicitLinks);
+
+      // Add parent-child link for subsections
+      const parentLink = createParentLink(document, section);
+      if (parentLink) {
+        this.graph.links.push(parentLink);
+      }
 
       // Add implicit links from natural language processing
       if (section.brief) {
