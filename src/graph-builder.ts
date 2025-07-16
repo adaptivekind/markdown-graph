@@ -1,12 +1,12 @@
 import { Graph, Link } from "@adaptivekind/graph-schema";
 import type { MarkdownDocument, MarkdownSection } from "./types";
-import { isEmpty } from "es-toolkit/compat";
-import { linkResolver } from "./link-resolver";
+import {
+  createExplicitLinks,
+  createNode,
+  getGraphStats,
+} from "./graph-operations";
 import { naturalProcess } from "./natural-language";
 import { parseMarkdownDocument } from "./markdown";
-
-// Constants for graph building
-const ROOT_SECTION_DEPTH = 1;
 
 /**
  * Builder class for constructing graph structures from markdown documents
@@ -57,12 +57,8 @@ export class GraphBuilder {
     sections: MarkdownSection[],
   ): void {
     sections.forEach((section) => {
-      const nodeId = this.createNodeId(document, section);
-
-      this.graph.nodes[nodeId] = {
-        label: section.title,
-        meta: this.createNodeMeta(document),
-      };
+      const { id, node } = createNode(document, section);
+      this.graph.nodes[id] = node;
     });
   }
 
@@ -74,13 +70,11 @@ export class GraphBuilder {
     sections: MarkdownSection[],
   ): void {
     sections.forEach((section) => {
-      section.links.forEach((target) => {
-        this.graph.links.push({
-          source: document.id,
-          target: target,
-        });
-      });
+      // Add explicit links
+      const explicitLinks = createExplicitLinks(document, section);
+      this.graph.links.push(...explicitLinks);
 
+      // Add implicit links from natural language processing
       if (section.brief) {
         const naturalLinks = naturalProcess(section.brief).links;
         for (const target of naturalLinks) {
@@ -93,34 +87,6 @@ export class GraphBuilder {
         }
       }
     });
-  }
-
-  /**
-   * Create a unique node ID for a section within a document
-   */
-  private createNodeId(
-    document: MarkdownDocument,
-    section: MarkdownSection,
-  ): string {
-    if (section.depth === ROOT_SECTION_DEPTH) {
-      // Top-level sections use the document ID
-      return document.id;
-    }
-    // Subsections include the section title as a fragment
-    return `${document.id}#${linkResolver(section.title)}`;
-  }
-
-  /**
-   * Create metadata object for a node from document frontmatter
-   */
-  private createNodeMeta(
-    document: MarkdownDocument,
-  ): { [name: string]: string } | undefined {
-    if (isEmpty(document.frontmatter)) {
-      return undefined;
-    }
-    // Cast to expected type for graph schema compatibility
-    return document.frontmatter as { [name: string]: string };
   }
 
   /**
@@ -157,6 +123,7 @@ export class GraphBuilder {
       nodes: {},
       links: [],
     };
+    this.implicitLinks = [];
     return this;
   }
 
@@ -169,9 +136,6 @@ export class GraphBuilder {
    * @returns Object containing node and link counts
    */
   getStats(): { nodeCount: number; linkCount: number } {
-    return {
-      nodeCount: Object.keys(this.graph.nodes).length,
-      linkCount: this.graph.links.length,
-    };
+    return getGraphStats(this.graph);
   }
 }

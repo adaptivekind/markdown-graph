@@ -121,9 +121,6 @@ describe("CLI", () => {
     // Check that the file was created in the current directory
     const outputPath = path.join(process.cwd(), ".garden-graph.json");
     expect(fs.existsSync(outputPath)).toBe(true);
-
-    // Clean up
-    fs.unlinkSync(outputPath);
   });
 
   it("should use custom output file when -o option provided", async () => {

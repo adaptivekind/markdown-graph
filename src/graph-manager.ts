@@ -1,13 +1,9 @@
 import type { MarkdownDocument, MarkdownRepository } from "./types";
+import { createNodeId, getGraphStats } from "./graph-operations";
 import { Graph } from "@adaptivekind/graph-schema";
 import { GraphBuilder } from "./graph-builder";
-import { linkResolver } from "./link-resolver";
 import { parseMarkdownDocument } from "./markdown";
 import path from "path";
-
-// Constants for graph management
-const ROOT_SECTION_DEPTH = 1;
-const EMPTY_OBJECT_LENGTH = 0;
 
 interface DocumentNodeMapping {
   documentId: string;
@@ -109,9 +105,7 @@ export class GraphManager {
     filePath?: string,
   ): void {
     const sections = parseMarkdownDocument(document);
-    const nodeIds = sections.map((section) =>
-      this.createNodeId(document, section),
-    );
+    const nodeIds = sections.map((section) => createNodeId(document, section));
 
     this.documentMappings.set(documentId, {
       documentId,
@@ -121,30 +115,17 @@ export class GraphManager {
   }
 
   /**
-   * Add a document to the existing graph
+   * Add a document to the existing graph using GraphBuilder
    */
   private addDocumentToGraph(document: MarkdownDocument): void {
-    const sections = parseMarkdownDocument(document);
+    // Create a temporary builder to get the document's graph representation
+    const tempBuilder = new GraphBuilder();
+    tempBuilder.addDocument(document);
+    const documentGraph = tempBuilder.build();
 
-    // Add nodes
-    sections.forEach((section) => {
-      const nodeId = this.createNodeId(document, section);
-      this.graph.nodes[nodeId] = {
-        label: section.title,
-        meta: this.createNodeMeta(document),
-      };
-    });
-
-    // Add links from all sections
-    sections.forEach((section) => {
-      const sourceNodeId = this.createNodeId(document, section);
-      section.links.forEach((target) => {
-        this.graph.links.push({
-          source: sourceNodeId,
-          target: target,
-        });
-      });
-    });
+    // Merge the document's nodes and links into the main graph
+    Object.assign(this.graph.nodes, documentGraph.nodes);
+    this.graph.links.push(...documentGraph.links);
   }
 
   /**
@@ -171,34 +152,6 @@ export class GraphManager {
   }
 
   /**
-   * Create a node ID using the same logic as GraphBuilder
-   */
-  private createNodeId(
-    document: MarkdownDocument,
-    section: { depth: number; title: string },
-  ): string {
-    if (section.depth === ROOT_SECTION_DEPTH) {
-      return document.id;
-    }
-    return `${document.id}#${linkResolver(section.title)}`;
-  }
-
-  /**
-   * Create metadata object for a node from document frontmatter
-   */
-  private createNodeMeta(
-    document: MarkdownDocument,
-  ): { [name: string]: string } | undefined {
-    if (
-      !document.frontmatter ||
-      Object.keys(document.frontmatter).length === EMPTY_OBJECT_LENGTH
-    ) {
-      return undefined;
-    }
-    return document.frontmatter as { [name: string]: string };
-  }
-
-  /**
    * Convert absolute file path to relative path for document reference
    */
   private getRelativePathFromAbsolute(filePath: string): string {
@@ -209,9 +162,6 @@ export class GraphManager {
    * Get statistics about the current graph
    */
   getStats(): { nodeCount: number; linkCount: number } {
-    return {
-      nodeCount: Object.keys(this.graph.nodes).length,
-      linkCount: this.graph.links.length,
-    };
+    return getGraphStats(this.graph);
   }
 }
