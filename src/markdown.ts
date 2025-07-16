@@ -12,6 +12,7 @@ interface Section {
   sections: Section[];
   depth: number;
   title: string;
+  brief?: string; // brief content for the section
 }
 
 // Autolink is like <https://foo.com> see
@@ -21,6 +22,11 @@ const isAutoLink = (node: Node) =>
   (node as Link).url === ((node as Parent).children[0] as Literal).value;
 
 const isRegularTextNode = (node: Node) => !!node && !isAutoLink(node);
+
+const isWikiLink = (node: Node) => node.type === "wikiLink";
+
+const isTextNodeWithoutWikiLinks = (node: Node) =>
+  !!node && !isWikiLink(node) && !isAutoLink(node);
 
 const extractTextFromNode = (
   node: Node,
@@ -39,7 +45,7 @@ const extractTextFromFirstParagraph = (
   if (firstParagraph) {
     return extractTextFromNode(firstParagraph, filter);
   }
-  return null;
+  return undefined;
 };
 
 const extractSectionTitle = (section: Section) => {
@@ -233,6 +239,7 @@ const toMarkdownSection = (
     hash: document.hash,
     links: extractedLinks,
     depth: section.depth,
+    brief: extractTextFromFirstParagraph(section, isTextNodeWithoutWikiLinks),
   };
 };
 

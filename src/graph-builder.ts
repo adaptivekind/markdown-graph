@@ -1,7 +1,8 @@
+import { Graph, Link } from "@adaptivekind/graph-schema";
 import type { MarkdownDocument, MarkdownSection } from "./types";
-import { Graph } from "@adaptivekind/graph-schema";
 import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
+import { naturalProcess } from "./natural-language";
 import { parseMarkdownDocument } from "./markdown";
 
 // Constants for graph building
@@ -28,6 +29,8 @@ export class GraphBuilder {
     nodes: {},
     links: [],
   };
+
+  private implicitLinks: Link[] = [];
 
   /**
    * Add a markdown document to the graph
@@ -77,6 +80,18 @@ export class GraphBuilder {
           target: target,
         });
       });
+
+      if (section.brief) {
+        const naturalLinks = naturalProcess(section.brief).links;
+        for (const target of naturalLinks) {
+          if (target != document.id) {
+            this.implicitLinks.push({
+              source: document.id,
+              target: target,
+            });
+          }
+        }
+      }
     });
   }
 
@@ -117,6 +132,12 @@ export class GraphBuilder {
    * @returns A copy of the current graph structure
    */
   build(): Graph {
+    for (const implicitLink of this.implicitLinks) {
+      if (implicitLink.target in this.graph.nodes) {
+        this.graph.links.push(implicitLink);
+      }
+    }
+
     return {
       nodes: { ...this.graph.nodes },
       links: [...this.graph.links],

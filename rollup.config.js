@@ -12,11 +12,13 @@ const sharedWarningHandler = (warning, warn) => {
     return;
   }
 
-  // Suppress circular dependency warning from es-toolkit - external dependency issue
+  // Suppress circular dependency warning from es-toolkit or suffix-thumb - external dependency issue
   if (
     warning.code === "CIRCULAR_DEPENDENCY" &&
     warning.ids &&
-    warning.ids.some((id) => id.includes("es-toolkit"))
+    warning.ids.some(
+      (id) => id.includes("es-toolkit") || id.includes("suffix-thumb"),
+    )
   ) {
     return;
   }

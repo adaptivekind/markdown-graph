@@ -17,6 +17,7 @@ export interface MarkdownSection {
   hash: string;
   links: string[];
   depth: number;
+  brief?: string;
 }
 
 // A DocumentReference is a lightweight reference to a markdown document.
