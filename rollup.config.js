@@ -31,6 +31,7 @@ export default [
   {
     input: "src/index.ts",
     output: {
+      sourcemap: true,
       file: "dist/markdown-graph.js",
       format: "umd",
       name: "markdownGraph",
