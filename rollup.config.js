@@ -40,7 +40,7 @@ export default [
         "@adaptivekind/graph-schema": "graphSchema",
       },
     },
-    external: ["@adaptivekind/graph-schema","fs","path"],
+    external: ["@adaptivekind/graph-schema", "fs", "path"],
     onwarn: sharedWarningHandler,
     plugins: [
       nodeResolve({
