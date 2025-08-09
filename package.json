@@ -13,7 +13,7 @@
   "license": "MIT",
   "author": "Ian Homer",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/markdown-graph.js",
   "publishConfig": {
     "access": "public"
   },
