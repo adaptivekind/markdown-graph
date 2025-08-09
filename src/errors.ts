@@ -3,11 +3,15 @@
 export class MarkdownGraphError extends Error {
   public cause?: Error;
 
-  constructor(message: string, cause?: Error) {
+  constructor(message: string, cause?: unknown) {
     super(message);
     this.name = "MarkdownGraphError";
     if (cause) {
-      this.cause = cause;
+      if (cause instanceof Error) {
+        this.cause = cause;
+      } else {
+        this.cause = Error(JSON.stringify(cause));
+      }
     }
   }
 }
@@ -20,8 +24,8 @@ export class FileNotFoundError extends MarkdownGraphError {
 }
 
 export class DirectoryNotFoundError extends MarkdownGraphError {
-  constructor(directory: string) {
-    super(`Directory does not exist: ${directory}`);
+  constructor(directory: string, cause?: unknown) {
+    super(`Directory does not exist: ${directory}`, cause);
     this.name = "DirectoryNotFoundError";
   }
 }

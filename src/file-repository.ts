@@ -70,8 +70,8 @@ export class FileRepository implements MarkdownRepository {
   private async validateDirectory(): Promise<void> {
     try {
       await fs.promises.access(this.directory);
-    } catch {
-      throw new DirectoryNotFoundError(this.directory);
+    } catch (e: unknown) {
+      throw new DirectoryNotFoundError(this.directory, e);
     }
   }
 
