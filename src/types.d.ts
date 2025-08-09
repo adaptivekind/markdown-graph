@@ -1,3 +1,5 @@
+import { Graph } from "@adaptivekind/graph-schema";
+
 // A MarkdownDocument represents a parsed markdown file with its content and metadata.
 // It contains the raw markdown content and extracted frontmatter.
 
@@ -40,3 +42,9 @@ export interface MarkdownRepository {
   loadDocument: (reference: DocumentReference) => Promise<MarkdownDocument>;
   findAll: () => AsyncIterable<DocumentReference>;
 }
+
+export type Garden = {
+  graph: Graph;
+};
+
+export function createGarden(options: RepositoryOptions): Promise<Garden>;

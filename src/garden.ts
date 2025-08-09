@@ -1,4 +1,4 @@
-import type { MarkdownRepository, RepositoryOptions } from "./types";
+import type { Garden, MarkdownRepository, RepositoryOptions } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { GraphBuilder } from "./graph-builder";
 import { toRepository } from "./repository-factory";
@@ -25,7 +25,9 @@ async function generateGraph(repository: MarkdownRepository): Promise<Graph> {
 /**
  * Create a garden (graph) from repository options
  */
-export async function createGarden(options: RepositoryOptions) {
+export async function createGarden(
+  options: RepositoryOptions,
+): Promise<Garden> {
   const repository = toRepository(options);
 
   return {
