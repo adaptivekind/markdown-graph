@@ -34,13 +34,13 @@ export default [
     output: {
       sourcemap: true,
       file: "dist/markdown-graph.js",
-      format: "umd",
+      format: "es",
       name: "markdownGraph",
       globals: {
         "@adaptivekind/graph-schema": "graphSchema",
       },
     },
-    external: ["@adaptivekind/graph-schema"],
+    external: ["@adaptivekind/graph-schema","fs","path"],
     onwarn: sharedWarningHandler,
     plugins: [
       nodeResolve({
@@ -50,26 +50,10 @@ export default [
       commonjs({
         include: ["node_modules/**"],
         transformMixedEsModules: true,
-        ignore: ["fs"],
       }),
       typescript({
         outputToFilesystem: false,
       }),
-      {
-        name: "ignore-node-builtins",
-        resolveId(id) {
-          if (id === "fs" || id === "path" || id === "util") {
-            return { id, external: false, moduleSideEffects: false };
-          }
-          return null;
-        },
-        load(id) {
-          if (id === "fs" || id === "path" || id === "util") {
-            return "export default {};";
-          }
-          return null;
-        },
-      },
     ],
   },
   // CLI Node.js build
