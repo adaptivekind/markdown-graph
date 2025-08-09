@@ -51,5 +51,6 @@ export async function createGarden(
       justNodeNames: options.justNodeNames,
       noSections: options.noSections,
     }),
+    repository,
   };
 }

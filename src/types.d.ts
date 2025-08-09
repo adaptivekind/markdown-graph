@@ -47,6 +47,7 @@ export interface MarkdownRepository {
 
 export type Garden = {
   graph: Graph;
+  repository: MarkdownRepository;
 };
 
 export function createGarden(options: RepositoryOptions): Promise<Garden>;

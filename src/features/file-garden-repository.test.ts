@@ -13,6 +13,7 @@ describe("file garden repository", () => {
 
     expect(garden.graph.nodes).toBeDefined();
     expect(garden.graph.links).toBeDefined();
+    expect(garden.repository.constructor.name).toBe("FileRepository");
   });
 
   it("should throw error when path is not provided", async () => {
