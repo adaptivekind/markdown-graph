@@ -41,6 +41,7 @@ export type RepositoryOptions = Partial<RepositoryConfig>;
 // Repository interface for accessing markdown documents.
 export interface MarkdownRepository {
   toDocumentReference: (id: string) => DocumentReference;
+  find: (id: string) => Promise<MarkdownDocument>;
   loadDocument: (reference: DocumentReference) => Promise<MarkdownDocument>;
   findAll: () => AsyncIterable<DocumentReference>;
 }

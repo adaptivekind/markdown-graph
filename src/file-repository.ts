@@ -8,10 +8,10 @@ import type {
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
+import path, { join, resolve } from "path";
 import { BaseItem } from "./base-item";
 import fs from "fs";
 import { hash } from "./hash";
-import path from "path";
 
 /**
  * Configuration options for FileRepository
@@ -75,7 +75,7 @@ export class FileRepository implements MarkdownRepository {
     }
   }
 
-  toDocumentReference(filename: string): DocumentReference {
+  toDocumentReference(filename: string): FileDocumentReference {
     const normalizedDocumentId = this.normalizeFilename(filename);
     return new FileDocumentReference(
       normalizedDocumentId,
@@ -93,7 +93,6 @@ export class FileRepository implements MarkdownRepository {
     if (!(reference instanceof FileDocumentReference)) {
       throw new Error("Invalid reference type for FileRepository");
     }
-
     const filepath = path.join(this.directory, reference.filename);
 
     try {
@@ -110,6 +109,49 @@ export class FileRepository implements MarkdownRepository {
       }
       throw new MarkdownParsingError(reference.filename, error as Error);
     }
+  }
+
+  async findInDirectory(
+    relativeDirectory: string,
+    relativeFilename: string,
+  ): Promise<string | false> {
+    const absoluteDirectory = resolve(this.directory, relativeDirectory);
+    const directories = await fs.promises.readdir(absoluteDirectory, {
+      withFileTypes: true,
+    });
+    // Files first
+    for (const child of directories) {
+      if (
+        !child.isDirectory() &&
+        child.name.toLowerCase() === relativeFilename
+      ) {
+        return join(relativeDirectory, child.name);
+      }
+    }
+    // ... then directories
+    for (const child of directories) {
+      if (child.isDirectory() && this.shouldScanDirectory(child.name)) {
+        const resolved = join(relativeDirectory, child.name);
+        const candidate = await this.findInDirectory(
+          resolved,
+          relativeFilename,
+        );
+        if (candidate) {
+          return candidate;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  async find(id: string) {
+    const filename = await this.findInDirectory("", `${id}.md`);
+    if (!filename) {
+      throw new FileNotFoundError(id);
+    }
+    const reference = this.toDocumentReference(filename);
+    return this.loadDocument(reference);
   }
 
   async *findAll(): AsyncIterable<DocumentReference> {

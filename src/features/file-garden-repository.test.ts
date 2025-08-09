@@ -16,6 +16,21 @@ describe("file garden repository", () => {
     expect(garden.repository.constructor.name).toBe("FileRepository");
   });
 
+  it("should get content from file repository", async () => {
+    const garden = await createGarden({
+      type: "file",
+      path: testGardenPath,
+    });
+
+    const document = await garden.repository.find("note1");
+    expect(document).toBeDefined();
+    expect(document.content).toContain("Note One");
+
+    const document4 = await garden.repository.find("note4");
+    expect(document4).toBeDefined();
+    expect(document4.content).toContain("Note Four in Subdirectory");
+  });
+
   it("should throw error when path is not provided", async () => {
     await expect(async () => {
       await createGarden({

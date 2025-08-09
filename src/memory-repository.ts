@@ -63,6 +63,11 @@ export class InMemoryRepository implements MarkdownRepository {
     return new BaseItem(reference, reference.id, content);
   }
 
+  async find(id: string): Promise<MarkdownDocument> {
+    const reference = this.toDocumentReference(id);
+    return this.loadDocument(reference);
+  }
+
   async *findAll(): AsyncIterable<DocumentReference> {
     for (const key of this.content.keys()) {
       yield this.toDocumentReference(key);
