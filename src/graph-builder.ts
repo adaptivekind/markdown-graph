@@ -1,5 +1,9 @@
+import type {
+  DocumentReference,
+  MarkdownDocument,
+  MarkdownSection,
+} from "./types";
 import { Graph, Link } from "@adaptivekind/graph-schema";
-import type { MarkdownDocument, MarkdownSection } from "./types";
 import {
   createExplicitLinks,
   createNode,
@@ -38,6 +42,24 @@ export class GraphBuilder {
   constructor(options?: { justNodeNames?: boolean; noSections?: boolean }) {
     this.justNodeNames = options?.justNodeNames ?? false;
     this.noSections = options?.noSections ?? false;
+  }
+
+  /**
+   * Add a document reference to the graph without parsing content
+   *
+   * This is an optimized method for when we only need node names without
+   * metadata or links. Creates empty nodes based on document ID only.
+   *
+   * @param reference - The document reference to add
+   * @returns this - For method chaining
+   */
+  addDocumentReference(reference: DocumentReference): this {
+    // Only add if we're in the optimized mode (both options enabled)
+    if (this.noSections && this.justNodeNames) {
+      // Create a single empty node for the document
+      this.graph.nodes[reference.id] = {};
+    }
+    return this;
   }
 
   /**

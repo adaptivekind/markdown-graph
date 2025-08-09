@@ -13,15 +13,28 @@ async function generateGraph(
 ): Promise<Graph> {
   const builder = new GraphBuilder(options);
 
-  const promises = [];
-  for await (const reference of repository.findAll())
-    promises.push(
-      repository.loadDocument(reference).then((document) => {
-        builder.addDocument(document);
-      }),
-    );
+  // Optimization: When both noSections and justNodeNames are true,
+  // we only need document IDs and can skip file loading and parsing
+  const canOptimize = options?.noSections && options?.justNodeNames;
 
-  await Promise.all(promises);
+  if (canOptimize) {
+    // Fast path: only use document references (IDs) without loading content
+    for await (const reference of repository.findAll()) {
+      builder.addDocumentReference(reference);
+    }
+  } else {
+    // Normal path: load and parse documents
+    const promises = [];
+    for await (const reference of repository.findAll())
+      promises.push(
+        repository.loadDocument(reference).then((document) => {
+          builder.addDocument(document);
+        }),
+      );
+
+    await Promise.all(promises);
+  }
+
   return builder.build();
 }
 
