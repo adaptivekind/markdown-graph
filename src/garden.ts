@@ -9,7 +9,7 @@ import { toRepository } from "./repository-factory";
  */
 async function generateGraph(
   repository: MarkdownRepository,
-  options?: { justNodeNames?: boolean },
+  options?: { justNodeNames?: boolean; noSections?: boolean },
 ): Promise<Graph> {
   const builder = new GraphBuilder(options);
 
@@ -36,6 +36,7 @@ export async function createGarden(
   return {
     graph: await generateGraph(repository, {
       justNodeNames: options.justNodeNames,
+      noSections: options.noSections,
     }),
   };
 }

@@ -33,9 +33,11 @@ export class GraphBuilder {
 
   private implicitLinks: Link[] = [];
   private justNodeNames: boolean;
+  private noSections: boolean;
 
-  constructor(options?: { justNodeNames?: boolean }) {
+  constructor(options?: { justNodeNames?: boolean; noSections?: boolean }) {
     this.justNodeNames = options?.justNodeNames ?? false;
+    this.noSections = options?.noSections ?? false;
   }
 
   /**
@@ -49,7 +51,13 @@ export class GraphBuilder {
    * @returns this - For method chaining
    */
   addDocument(document: MarkdownDocument): this {
-    const sections = parseMarkdownDocument(document);
+    const allSections = parseMarkdownDocument(document);
+
+    // Filter sections if noSections is enabled (only keep depth 1 sections)
+    const sections = this.noSections
+      ? allSections.filter((section) => section.depth === 1)
+      : allSections;
+
     this.addNodes(document, sections);
     this.addLinks(document, sections);
     return this;
