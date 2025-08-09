@@ -32,6 +32,11 @@ export class GraphBuilder {
   };
 
   private implicitLinks: Link[] = [];
+  private justNodeNames: boolean;
+
+  constructor(options?: { justNodeNames?: boolean }) {
+    this.justNodeNames = options?.justNodeNames ?? false;
+  }
 
   /**
    * Add a markdown document to the graph
@@ -57,10 +62,19 @@ export class GraphBuilder {
     document: MarkdownDocument,
     sections: MarkdownSection[],
   ): void {
-    sections.forEach((section) => {
-      const { id, node } = createNode(document, section);
-      this.graph.nodes[id] = node;
-    });
+    if (this.justNodeNames) {
+      // In justNodeNames mode, only create empty nodes with just the key
+      sections.forEach((section) => {
+        const { id } = createNode(document, section);
+        this.graph.nodes[id] = {};
+      });
+    } else {
+      // Normal mode: create nodes with full metadata
+      sections.forEach((section) => {
+        const { id, node } = createNode(document, section);
+        this.graph.nodes[id] = node;
+      });
+    }
   }
 
   /**
@@ -70,6 +84,11 @@ export class GraphBuilder {
     document: MarkdownDocument,
     sections: MarkdownSection[],
   ): void {
+    if (this.justNodeNames) {
+      // In justNodeNames mode, skip creating any links
+      return;
+    }
+
     sections.forEach((section) => {
       // Add explicit links
       const explicitLinks = createExplicitLinks(document, section);
@@ -105,9 +124,12 @@ export class GraphBuilder {
    * @returns A copy of the current graph structure
    */
   build(): Graph {
-    for (const implicitLink of this.implicitLinks) {
-      if (implicitLink.target in this.graph.nodes) {
-        this.graph.links.push(implicitLink);
+    if (!this.justNodeNames) {
+      // Only process implicit links in normal mode
+      for (const implicitLink of this.implicitLinks) {
+        if (implicitLink.target in this.graph.nodes) {
+          this.graph.links.push(implicitLink);
+        }
       }
     }
 

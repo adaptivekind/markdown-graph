@@ -32,6 +32,7 @@ export type RepositoryConfig = {
   content: { [id: string]: string };
   type: "file" | "inmemory";
   path?: string; // Directory path for file repository
+  justNodeNames?: boolean; // When true, only include node names without metadata or links
 };
 
 export type RepositoryOptions = Partial<RepositoryConfig>;

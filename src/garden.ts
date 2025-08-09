@@ -7,8 +7,11 @@ import { toRepository } from "./repository-factory";
  * Generate a graph from a markdown repository using the GraphBuilder
  * Optimized for concurrent file loading to improve performance
  */
-async function generateGraph(repository: MarkdownRepository): Promise<Graph> {
-  const builder = new GraphBuilder();
+async function generateGraph(
+  repository: MarkdownRepository,
+  options?: { justNodeNames?: boolean },
+): Promise<Graph> {
+  const builder = new GraphBuilder(options);
 
   const promises = [];
   for await (const reference of repository.findAll())
@@ -31,6 +34,8 @@ export async function createGarden(
   const repository = toRepository(options);
 
   return {
-    graph: await generateGraph(repository),
+    graph: await generateGraph(repository, {
+      justNodeNames: options.justNodeNames,
+    }),
   };
 }
