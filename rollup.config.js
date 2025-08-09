@@ -28,7 +28,6 @@ const sharedWarningHandler = (warning, warn) => {
 };
 
 export default [
-  // Browser/UMD build
   {
     input: "src/index.ts",
     output: {
@@ -45,7 +44,7 @@ export default [
     plugins: [
       nodeResolve({
         preferBuiltins: false,
-        browser: true,
+        browser: false,
       }),
       commonjs({
         include: ["node_modules/**"],
