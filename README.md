@@ -1,6 +1,6 @@
 # Markdown Graph
 
-[![Test](https://github.com/adaptivekind/markdown-graph/workflows/Test/badge.svg)](https://github.com/adaptivekind/markdown-graph/actions)
+[![Test](https://github.com/adaptivekind/markdown-graph/workflows/CI/badge.svg)](https://github.com/adaptivekind/markdown-graph/actions)
 [![npm version](https://badge.fury.io/js/%40adaptivekind%2Fmarkdown-graph.svg)](https://badge.fury.io/js/%40adaptivekind%2Fmarkdown-graph)
 
 Generate a graph JSON from a markdown repository with real-time file watching
