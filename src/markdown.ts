@@ -19,7 +19,7 @@ interface Section {
 // https://daringfireball.net/projects/markdown/syntax#autolink
 const isAutoLink = (node: Node) =>
   node.type === "link" &&
-  (node as Link).url === ((node as Parent).children[0] as Literal).value;
+  (node as Link).url === ((node as Parent).children[0] as Literal)?.value;
 
 const isRegularTextNode = (node: Node) => !!node && !isAutoLink(node);
 

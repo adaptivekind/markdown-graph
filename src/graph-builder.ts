@@ -73,15 +73,23 @@ export class GraphBuilder {
    * @returns this - For method chaining
    */
   addDocument(document: MarkdownDocument): this {
-    const allSections = parseMarkdownDocument(document);
+    try {
+      const allSections = parseMarkdownDocument(document);
 
-    // Filter sections if noSections is enabled (only keep depth 1 sections)
-    const sections = this.noSections
-      ? allSections.filter((section) => section.depth === 1)
-      : allSections;
+      // Filter sections if noSections is enabled (only keep depth 1 sections)
+      const sections = this.noSections
+        ? allSections.filter((section) => section.depth === 1)
+        : allSections;
 
-    this.addNodes(document, sections);
-    this.addLinks(document, sections);
+      this.addNodes(document, sections);
+      this.addLinks(document, sections);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(
+        `Ignoring ${document.filename} since error during parsing`,
+        error,
+      );
+    }
     return this;
   }
 
