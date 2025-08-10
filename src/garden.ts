@@ -5,6 +5,8 @@ import fs from "fs";
 import path from "path";
 import { toRepository } from "./repository-factory";
 
+const JSON_INDENT_SPACES = 2;
+
 /**
  * Generate a graph from a markdown repository using the GraphBuilder
  * Optimized for concurrent file loading to improve performance
@@ -41,7 +43,7 @@ async function generateGraph(
 }
 
 async function save(graph: Graph, outputPath: string) {
-  const jsonContent = JSON.stringify(graph, null, 2);
+  const jsonContent = JSON.stringify(graph, null, JSON_INDENT_SPACES);
   fs.writeFileSync(outputPath, jsonContent);
 }
 /**
