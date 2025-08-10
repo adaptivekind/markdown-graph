@@ -72,25 +72,6 @@ describe("garden save functionality", () => {
     expect("note2" in savedContent.nodes).toBe(true);
   });
 
-  it("should create output directory if it doesn't exist", async () => {
-    const nestedOutputPath = path.join(testDir, "nested", "deep", "graph.json");
-
-    const garden = await createGarden({
-      content: testMarkdownContent,
-      type: "inmemory",
-      outputPath: nestedOutputPath,
-    });
-
-    await garden.save();
-
-    expect(fs.existsSync(nestedOutputPath)).toBe(true);
-    expect(fs.existsSync(path.dirname(nestedOutputPath))).toBe(true);
-
-    const savedContent = JSON.parse(fs.readFileSync(nestedOutputPath, "utf-8"));
-    expect(savedContent.nodes).toBeDefined();
-    expect(Object.keys(savedContent.nodes)).toHaveLength(2);
-  });
-
   it("should save properly formatted JSON with 2 space indentation", async () => {
     const outputPath = path.join(testDir, "formatted-graph.json");
 

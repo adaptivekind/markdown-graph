@@ -40,6 +40,10 @@ async function generateGraph(
   return builder.build();
 }
 
+async function save(graph: Graph, outputPath: string) {
+  const jsonContent = JSON.stringify(graph, null, 2);
+  fs.writeFileSync(outputPath, jsonContent);
+}
 /**
  * Create a garden (graph) from repository options
  */
@@ -68,16 +72,6 @@ export async function createGarden(
   return {
     graph,
     repository,
-    save: async (): Promise<void> => {
-      // Ensure the output directory exists
-      const outputDir = path.dirname(outputPath);
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-
-      // Write graph to JSON file
-      const jsonContent = JSON.stringify(graph, null, 2);
-      fs.writeFileSync(outputPath, jsonContent);
-    },
+    save: async () => save(graph, outputPath),
   };
 }
