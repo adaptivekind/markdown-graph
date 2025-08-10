@@ -43,7 +43,6 @@ const SUCCESS_EXIT_CODE = 0;
 const ERROR_EXIT_CODE = 1;
 const DEFAULT_DEBOUNCE_STRING = "300";
 const PARSE_BASE_10 = 10;
-const JSON_INDENT_SPACES = 2;
 const UNEXPECTED_ERROR_MESSAGE = "Unexpected error:";
 
 // Logging levels for different modes
@@ -207,6 +206,7 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
     const garden = await createGarden({
       type: "file",
       path: processedOptions.targetDirectory,
+      outputPath: processedOptions.outputFile,
     });
 
     const nodeCount = Object.keys(garden.graph.nodes).length;
@@ -223,10 +223,7 @@ export const runCli = async (options: CliOptions = {}): Promise<CliResult> => {
     }
 
     // Write graph to JSON file
-    fs.writeFileSync(
-      processedOptions.outputFile,
-      JSON.stringify(garden.graph, null, JSON_INDENT_SPACES),
-    );
+    await garden.save();
 
     const endTime = performance.now();
     const duration = Math.round(endTime - startTime);

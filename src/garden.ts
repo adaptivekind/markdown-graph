@@ -1,6 +1,8 @@
 import type { Garden, MarkdownRepository, RepositoryOptions } from "./types";
 import { Graph } from "@adaptivekind/graph-schema";
 import { GraphBuilder } from "./graph-builder";
+import fs from "fs";
+import path from "path";
 import { toRepository } from "./repository-factory";
 
 /**
@@ -45,12 +47,37 @@ export async function createGarden(
   options: RepositoryOptions,
 ): Promise<Garden> {
   const repository = toRepository(options);
+  const graph = await generateGraph(repository, {
+    justNodeNames: options.justNodeNames,
+    noSections: options.noSections,
+  });
+
+  // Determine the output path with default fallback
+  const getOutputPath = (): string => {
+    if (options.outputPath) {
+      return options.outputPath;
+    }
+
+    // Default to .garden-graph.json in the garden directory
+    const gardenDir = options.path || process.cwd();
+    return path.join(gardenDir, ".garden-graph.json");
+  };
+
+  const outputPath = getOutputPath();
 
   return {
-    graph: await generateGraph(repository, {
-      justNodeNames: options.justNodeNames,
-      noSections: options.noSections,
-    }),
+    graph,
     repository,
+    save: async (): Promise<void> => {
+      // Ensure the output directory exists
+      const outputDir = path.dirname(outputPath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+
+      // Write graph to JSON file
+      const jsonContent = JSON.stringify(graph, null, 2);
+      fs.writeFileSync(outputPath, jsonContent);
+    },
   };
 }
