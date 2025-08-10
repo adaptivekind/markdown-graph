@@ -34,6 +34,7 @@ export type RepositoryConfig = {
   path?: string; // Directory path for file repository
   justNodeNames?: boolean; // When true, only include node names without metadata or links
   noSections?: boolean; // When true, only include document nodes, not section nodes
+  outputPath?: string; // Path to save the garden graph JSON file, defaults to .garden-graph.json
 };
 
 export type RepositoryOptions = Partial<RepositoryConfig>;
@@ -49,6 +50,7 @@ export interface MarkdownRepository {
 export type Garden = {
   graph: Graph;
   repository: MarkdownRepository;
+  save: () => Promise<void>;
 };
 
 export function createGarden(options: RepositoryOptions): Promise<Garden>;
