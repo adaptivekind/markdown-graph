@@ -1,6 +1,6 @@
 import { DocumentReference, MarkdownDocument } from "./types";
 import matter, { GrayMatterFile } from "gray-matter";
-import { MarkdownMessage } from "./mardown-message";
+import { MarkdownMessage } from "./markdown-message";
 
 type Matter = GrayMatterFile<string> & {};
 

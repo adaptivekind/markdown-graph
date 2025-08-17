@@ -18,7 +18,9 @@
       "Bash(node:*)",
       "Bash(npx prettier:*)",
       "Bash(npm run typecheck:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "mcp__markdown-reader__read_markdown_file",
+      "Bash(mv:*)"
     ],
     "deny": []
   }
