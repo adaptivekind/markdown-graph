@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import { loadConfig, validateConfig } from "./config";
-import { Command } from "commander";
-import { GraphWatcher } from "./watcher";
-import { consola } from "consola";
-import { createGarden } from "./garden";
 import fs from "fs";
 import path from "path";
+import { Command } from "commander";
+import { consola } from "consola";
+import { loadConfig, validateConfig } from "./config";
 import { reportError } from "./error-reporter";
+import { createGarden } from "./garden";
+import { GraphWatcher } from "./watcher";
 
 export interface CliOptions {
   targetDirectory?: string;

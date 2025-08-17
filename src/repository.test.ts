@@ -2,17 +2,17 @@
  * Unit tests for repository implementations
  */
 
+import fs from "fs";
+import os from "os";
+import path from "path";
 import {
   DirectoryNotFoundError,
   DocumentNotFoundError,
   FileNotFoundError,
 } from "./errors";
-import type { DocumentReference } from "./types";
 import { FileRepository } from "./file-repository";
 import { InMemoryRepository } from "./memory-repository";
-import fs from "fs";
-import os from "os";
-import path from "path";
+import type { DocumentReference } from "./types";
 
 describe("FileRepository", () => {
   const nonExistentDir = "/non/existent/directory";

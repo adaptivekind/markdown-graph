@@ -41,9 +41,6 @@ directory, including recursive scanning of child directories.
 
 - Codebase > Documentation as source of truth.
 - you MUST not use the `any` type.
-- Sort typescript imports by putting multiple imports first. After that single
-  imports should be sorted starting with a imports starting with a capital letter,
-  after which single imports starting with a lower case letter should be sorted.
 - Prefer feature tests which test the public interfaces for this package as opposed
   to unit tests based on internal functions. This asserts the desired behaviour of
   the package.

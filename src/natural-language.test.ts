@@ -85,6 +85,7 @@ describe("natural language processing", () => {
         "what's up, are some of you over it?",
     );
     expect(links).toStrictEqual([
+      "you",
       "acme-tool",
       "lightweight",
       "fun",
@@ -95,6 +96,7 @@ describe("natural language processing", () => {
       "small",
       AWESOME_LIBRARY,
       SMALL_LIBRARY,
+      "it",
     ]);
   });
 

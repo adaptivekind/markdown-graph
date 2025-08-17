@@ -1,6 +1,6 @@
-import { GraphWatcher } from "../watcher";
 import fs from "fs";
 import path from "path";
+import { GraphWatcher } from "../watcher";
 
 interface FileChangeEventData {
   filePath: string;

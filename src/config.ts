@@ -5,9 +5,9 @@
  * supporting multiple configuration sources with proper precedence handling.
  */
 
-import { RepositoryConfigurationError } from "./errors";
 import fs from "fs";
 import path from "path";
+import { RepositoryConfigurationError } from "./errors";
 
 /**
  * Configuration options for markdown-graph

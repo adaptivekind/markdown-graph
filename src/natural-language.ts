@@ -1,5 +1,4 @@
-import Three from "compromise/types/view/three";
-import nlp from "compromise";
+import nlp from "compromise/three";
 
 interface Noun {
   adjectives: string[];
@@ -71,7 +70,7 @@ export function naturalProcess(
 ): { links: string[] } {
   const document = nlp(preStrip(content));
   const enhancedExcludes = [...excludes, "", ",", "s", "ing"];
-  const links: string[] = (document.not("#Pronoun") as Three)
+  const links: string[] = document
     .nouns()
     .toLowerCase()
     .json()
