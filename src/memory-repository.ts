@@ -24,8 +24,8 @@ class InMemoryDocumentReference implements DocumentReference {
  * @example
  * ```typescript
  * const repository = new InMemoryRepository({
- *   'doc1': '# Document 1\nContent here',
- *   'doc2': '# Document 2\nMore content'
+ *   'doc-1': '# Document 1\nContent here',
+ *   'doc-2': '# Document 2\nMore content'
  * });
  *
  * const doc = await repository.loadDocument(

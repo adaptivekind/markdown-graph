@@ -38,7 +38,7 @@ const flattenObject = (
 
 const safeMatter = (content: string) => {
   try {
-    // Note that the gray matter API caches the results if there are no options.
+    // Note that the grey matter API caches the results if there are no options.
     // In this system, caching is undesirable since it masks potential errors
     // and complicates reloading. Explicitly setting the language for the
     // frontmatter, other than setting our desired frontmatter also has the

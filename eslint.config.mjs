@@ -54,7 +54,7 @@ export default defineConfig([
       "@typescript-eslint/no-unused-vars": "error",
       "no-console": "error",
       "no-undef": "error",
-      "no-unused-vars": "off", // recommended to disable no-unused-vars https://typescript-eslint.io/rules/no-unused-vars/
+      "no-unused-vars": "off", // Recommended to disable no-unused-vars https://typescript-eslint.io/rules/no-unused-vars/
       "no-var": "error",
       "prefer-const": "error",
       "import/order": [

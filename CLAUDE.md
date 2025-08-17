@@ -13,7 +13,7 @@ content as Abstract Syntax Trees (AST). This provide the capability to extract
 content and links from Markdown documents. These Markdown documents are
 converted to Nodes and Links and assembled in a Graph.
 
-The Node, Link and Graph interfaces are provided by the
+The Node, Link, and Graph interfaces are provided by the
 `@adaptivekind/graph-schema` package.
 
 The file repository is defined as all the Markdown files within a given
@@ -21,18 +21,18 @@ directory, including recursive scanning of child directories.
 
 ## Universal Directives
 
-1. you MUST write code that is clear and explains meaning - prefer readability
+1. You MUST write code that is clear and explains meaning - prefer readability
    over condensed code.
-2. you MUST test, lint and build before declaring done.
-3. you MUST handle errors explicitly.
-4. you MUST code in a way that matches the style of the existing code.
-5. you MUST code in a way that makes it easier for future coders.
-6. you MUST focus on the task at hand, do not make changes that do not help
+2. You MUST test, lint, and build before declaring done.
+3. You MUST handle errors explicitly.
+4. You MUST code in a way that matches the style of the existing code.
+5. You MUST code in a way that makes it easier for future coders.
+6. You MUST focus on the task at hand, do not make changes that do not help
    towards this goal.
-7. you SHOULD ensure a test exists that describes the intended behaviour, before
+7. You SHOULD ensure a test exists that describes the intended behaviour, before
    writing the code that delivers that behaviour. Once the test is passes you
    should refactor the implementation to ensure the universal directives are met.
-8. you SHOULD from time to time review the code base holistically to check
+8. You SHOULD from time to time review the codebase holistically to check
    whether it satisfies the universal directives. If you have recommendation you
    MUST explain what you feel should be done. Only proceed with the fixes when
    explicitly asked to.
@@ -40,7 +40,7 @@ directory, including recursive scanning of child directories.
 ### Code Strategy
 
 - Codebase > Documentation as source of truth.
-- you MUST not use the `any` type.
+- You MUST not use the `any` type.
 - Prefer feature tests which test the public interfaces for this package as opposed
   to unit tests based on internal functions. This asserts the desired behaviour of
   the package.
@@ -49,7 +49,7 @@ directory, including recursive scanning of child directories.
 ## Engineering guidance
 
 - NEVER assume, always question
-- be BRUTALLY HONEST in assessments
+- Be BRUTALLY HONEST in assessments
 - NO NONSENSE, NO HYPE, NO MARKETING SPEAK - prefer hard facts and stay
   objective
 - Use slash commands for consistent workflows
@@ -76,7 +76,7 @@ directory, including recursive scanning of child directories.
 - Feature tests in `src/features/` directory
 - Use `graphFrom()` helper for test setup
 - Test files written to `target/` directory
-- Mock file system operations only when necessary
+- Mock filesystem operations only when necessary
 
 ## Technical Design
 
@@ -93,7 +93,6 @@ directory, including recursive scanning of child directories.
 ## Development Notes
 
 - The codebase uses ES modules (`"type": "module"` in package.json)
-- Gray-matter caching is explicitly disabled by setting language option
 - Strict TypeScript configuration with isolated modules
 - Content in markdown files should not have more than 80 characters on a line.
 - If any processes, such as testing generate, create files, these should be

@@ -11,7 +11,7 @@ export interface MarkdownDocument {
   frontmatter: Record<string, string>;
 }
 
-// A MarkdownSection represents a section within a markdown document.
+// Represents a section within a markdown document.
 // It contains the section title, links found in that section, and its heading depth.
 
 export interface MarkdownSection {
@@ -22,7 +22,7 @@ export interface MarkdownSection {
   brief?: string;
 }
 
-// A DocumentReference is a lightweight reference to a markdown document.
+// A lightweight reference to a markdown document.
 export interface DocumentReference {
   id: string;
   hash: string;
@@ -34,7 +34,7 @@ export type RepositoryConfig = {
   path?: string; // Directory path for file repository
   justNodeNames?: boolean; // When true, only include node names without metadata or links
   noSections?: boolean; // When true, only include document nodes, not section nodes
-  outputPath?: string; // Path to save the garden graph JSON file, defaults to .garden-graph.json
+  outputPath?: string; // Path to save the garden graph JSON file
 };
 
 export type RepositoryOptions = Partial<RepositoryConfig>;

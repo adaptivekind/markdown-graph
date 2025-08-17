@@ -29,7 +29,7 @@ export function createNodeMeta(
   if (isEmpty(document.frontmatter)) {
     return undefined;
   }
-  // Cast to expected type for graph schema compatibility
+  // Cast to the expected type for graph schema compatibility
   return document.frontmatter as { [name: string]: string };
 }
 
