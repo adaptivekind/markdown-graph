@@ -1,11 +1,11 @@
+import { BaseItem } from "./base-item";
+import { DocumentNotFoundError } from "./errors";
+import { hash } from "./hash";
 import type {
   DocumentReference,
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
-import { BaseItem } from "./base-item";
-import { DocumentNotFoundError } from "./errors";
-import { hash } from "./hash";
 
 class InMemoryDocumentReference implements DocumentReference {
   constructor(

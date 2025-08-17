@@ -5,6 +5,7 @@
  * suggestions and recovery actions for common error scenarios.
  */
 
+import { consola } from "consola";
 import {
   DirectoryNotFoundError,
   DocumentNotFoundError,
@@ -13,7 +14,6 @@ import {
   MarkdownParsingError,
   RepositoryConfigurationError,
 } from "./errors";
-import { consola } from "consola";
 
 /**
  * Represents a helpful suggestion for resolving an error

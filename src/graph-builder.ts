@@ -1,8 +1,3 @@
-import type {
-  DocumentReference,
-  MarkdownDocument,
-  MarkdownSection,
-} from "./types";
 import { Graph, Link } from "@adaptivekind/graph-schema";
 import {
   createExplicitLinks,
@@ -10,8 +5,13 @@ import {
   createParentLink,
   getGraphStats,
 } from "./graph-operations";
-import { naturalProcess } from "./natural-language";
 import { parseMarkdownDocument } from "./markdown";
+import { naturalProcess } from "./natural-language";
+import type {
+  DocumentReference,
+  MarkdownDocument,
+  MarkdownSection,
+} from "./types";
 
 /**
  * Builder class for constructing graph structures from markdown documents

@@ -1,7 +1,7 @@
-import type { MarkdownRepository, RepositoryOptions } from "./types";
+import { RepositoryConfigurationError } from "./errors";
 import { FileRepository } from "./file-repository";
 import { InMemoryRepository } from "./memory-repository";
-import { RepositoryConfigurationError } from "./errors";
+import type { MarkdownRepository, RepositoryOptions } from "./types";
 
 export function toRepository(config: RepositoryOptions): MarkdownRepository {
   if (config.type === "file") {

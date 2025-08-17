@@ -1,9 +1,9 @@
-import type { Garden, MarkdownRepository, RepositoryOptions } from "./types";
-import { Graph } from "@adaptivekind/graph-schema";
-import { GraphBuilder } from "./graph-builder";
 import fs from "fs";
 import path from "path";
+import { Graph } from "@adaptivekind/graph-schema";
+import { GraphBuilder } from "./graph-builder";
 import { toRepository } from "./repository-factory";
+import type { Garden, MarkdownRepository, RepositoryOptions } from "./types";
 
 const JSON_INDENT_SPACES = 2;
 

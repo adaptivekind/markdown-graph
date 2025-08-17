@@ -1,17 +1,17 @@
+import fs from "fs";
+import path, { join, resolve } from "path";
+import { BaseItem } from "./base-item";
 import {
   DirectoryNotFoundError,
   FileNotFoundError,
   MarkdownParsingError,
 } from "./errors";
+import { hash } from "./hash";
 import type {
   DocumentReference,
   MarkdownDocument,
   MarkdownRepository,
 } from "./types";
-import path, { join, resolve } from "path";
-import { BaseItem } from "./base-item";
-import fs from "fs";
-import { hash } from "./hash";
 
 /**
  * Configuration options for FileRepository

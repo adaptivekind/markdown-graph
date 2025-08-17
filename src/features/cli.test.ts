@@ -1,8 +1,8 @@
 // Import CLI functions
-import type { CliOptions } from "../cli";
-import { consola } from "consola";
 import fs from "fs";
 import path from "path";
+import { consola } from "consola";
+import type { CliOptions } from "../cli";
 import { runCli } from "../cli";
 
 const testGardenPath = path.join(process.cwd(), "test/gardens/test-garden");

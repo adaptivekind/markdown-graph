@@ -2,6 +2,9 @@
  * Unit tests for error handling scenarios
  */
 
+import { consola } from "consola";
+import { loadConfig, validateConfig } from "./config";
+import { formatError, isRecoverableError, reportError } from "./error-reporter";
 import {
   DirectoryNotFoundError,
   DocumentNotFoundError,
@@ -10,9 +13,6 @@ import {
   MarkdownParsingError,
   RepositoryConfigurationError,
 } from "./errors";
-import { formatError, isRecoverableError, reportError } from "./error-reporter";
-import { loadConfig, validateConfig } from "./config";
-import { consola } from "consola";
 
 // Mock consola methods
 jest.mock("consola", () => ({

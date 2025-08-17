@@ -1,9 +1,9 @@
-import type { MarkdownDocument, MarkdownRepository } from "./types";
-import { createNodeId, getGraphStats } from "./graph-operations";
+import path from "path";
 import { Graph } from "@adaptivekind/graph-schema";
 import { GraphBuilder } from "./graph-builder";
+import { createNodeId, getGraphStats } from "./graph-operations";
 import { parseMarkdownDocument } from "./markdown";
-import path from "path";
+import type { MarkdownDocument, MarkdownRepository } from "./types";
 
 interface DocumentNodeMapping {
   documentId: string;

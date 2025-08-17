@@ -1,12 +1,13 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import { defineConfig } from "eslint/config";
-import { fileURLToPath } from "node:url";
-import globals from "globals";
-import js from "@eslint/js";
 import path from "node:path";
-import sonarjs from "eslint-plugin-sonarjs";
-import tsParser from "@typescript-eslint/parser";
+import { fileURLToPath } from "node:url";
+
+import { FlatCompat } from "@eslint/eslintrc";
+import js from "@eslint/js";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
+import { defineConfig } from "eslint/config";
+import sonarjs from "eslint-plugin-sonarjs";
+import globals from "globals";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +19,18 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
-    extends: compat.extends("eslint:recommended"),
+    extends: compat.extends(
+      "eslint:recommended",
+      "plugin:import/recommended",
+      "plugin:import/typescript",
+    ),
+
+    settings: {
+      "import/resolver": {
+        typescript: true,
+        node: true,
+      },
+    },
 
     plugins: {
       "@typescript-eslint": typescriptEslint,
@@ -45,7 +57,14 @@ export default defineConfig([
       "no-unused-vars": "off", // recommended to disable no-unused-vars https://typescript-eslint.io/rules/no-unused-vars/
       "no-var": "error",
       "prefer-const": "error",
-      "sort-imports": "error",
+      "import/order": [
+        "error",
+        {
+          alphabetize: {
+            order: "asc",
+          },
+        },
+      ],
 
       // Apply SonarJS recommended rules
       ...sonarjs.configs.recommended.rules,

@@ -1,6 +1,6 @@
-import { createGarden } from "../garden";
 import fs from "fs";
 import path from "path";
+import { createGarden } from "../garden";
 
 const testMarkdownContent = {
   note1: `# Note 1

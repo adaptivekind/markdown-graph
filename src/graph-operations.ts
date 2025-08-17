@@ -1,6 +1,6 @@
-import type { MarkdownDocument, MarkdownSection } from "./types";
 import { isEmpty } from "es-toolkit/compat";
 import { linkResolver } from "./link-resolver";
+import type { MarkdownDocument, MarkdownSection } from "./types";
 
 // Constants for graph building
 export const ROOT_SECTION_DEPTH = 1;

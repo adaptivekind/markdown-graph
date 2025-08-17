@@ -1,11 +1,11 @@
-import * as chokidar from "chokidar";
 import { EventEmitter } from "events";
-import { FileRepository } from "./file-repository";
-import { GraphManager } from "./graph-manager";
-import { consola } from "consola";
-import { debounce } from "es-toolkit";
 import fs from "fs";
 import path from "path";
+import * as chokidar from "chokidar";
+import { consola } from "consola";
+import { debounce } from "es-toolkit";
+import { FileRepository } from "./file-repository";
+import { GraphManager } from "./graph-manager";
 
 // File watcher configuration constants
 const DEFAULT_DEBOUNCE_MS = 300;
