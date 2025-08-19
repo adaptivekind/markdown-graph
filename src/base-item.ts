@@ -2,7 +2,9 @@ import matter, { GrayMatterFile } from "gray-matter";
 import { MarkdownMessage } from "./markdown-message";
 import { DocumentReference, MarkdownDocument } from "./types";
 
-type Matter = GrayMatterFile<string> & {};
+type Matter = GrayMatterFile<string> & {
+  data: Record<string, unknown>;
+};
 
 const flattenObject = (
   obj: Record<string, unknown>,
@@ -36,7 +38,7 @@ const flattenObject = (
   return flattened;
 };
 
-const safeMatter = (content: string) => {
+const safeMatter = (content: string): Matter => {
   try {
     // Note that the grey matter API caches the results if there are no options.
     // In this system, caching is undesirable since it masks potential errors
@@ -52,6 +54,10 @@ const safeMatter = (content: string) => {
       content:
         content +
         new MarkdownMessage("Frontmatter error", message).toMarkdown(),
+      orig: "",
+      language: "yaml",
+      matter: "",
+      stringify: () => "",
     };
   }
 };

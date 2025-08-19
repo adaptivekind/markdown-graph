@@ -16,7 +16,7 @@ import type {
 /**
  * Builder class for constructing graph structures from markdown documents
  *
- * The `GrahBuilder` follows the builder pattern, allowing incremental construction
+ * The `GraphBuilder` follows the builder pattern, allowing incremental construction
  * of a graph by adding markdown documents one at a time. It handles the conversion
  * of markdown content into nodes and links in the graph structure.
  */

@@ -19,19 +19,7 @@ class InMemoryDocumentReference implements DocumentReference {
  *
  * Stores markdown content in memory as key-value pairs. Useful for testing
  * or when working with dynamically generated content that doesn't exist
- * on the file system.
- *
- * @example
- * ```typescript
- * const repository = new InMemoryRepository({
- *   'doc-1': '# Document 1\nContent here',
- *   'doc-2': '# Document 2\nMore content'
- * });
- *
- * const doc = await repository.loadDocument(
- *   repository.toDocumentReference('doc1')
- * );
- * ```
+ * on the filesystem.
  */
 export class InMemoryRepository implements MarkdownRepository {
   private readonly content: Map<string, string>;
@@ -49,7 +37,6 @@ export class InMemoryRepository implements MarkdownRepository {
   }
 
   private normalizeId(id: string): string {
-    // Remove .md extension if present and normalize to lowercase
     return id.replace(/\.md$/, "").toLowerCase();
   }
 
@@ -74,7 +61,6 @@ export class InMemoryRepository implements MarkdownRepository {
     }
   }
 
-  // Utility methods for testing and debugging
   size(): number {
     return this.content.size;
   }

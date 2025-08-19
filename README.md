@@ -268,25 +268,7 @@ npm run demo:test          # Test file changes in demo
 npm run demo:clean         # Clean up demo files
 ```
 
-### Code Quality
-
-The project uses comprehensive code quality tools:
-
-- **ESLint** with TypeScript support
-- **Prettier** for code formatting
-- **SonarJS** for code quality analysis
-- **Jest** with 100% test coverage
-- **Husky** for pre-commit hooks
-- **Knip** for dependency analysis
-
 ### Testing
-
-The project includes comprehensive tests:
-
-- **Unit tests** for core functionality
-- **Integration tests** for CLI and file operations
-- **Event-driven tests** for watch functionality
-- **Error handling tests** for edge cases
 
 Run tests with:
 
@@ -296,27 +278,7 @@ npm run test:watch         # Run tests in watch mode
 npm run test:coverage      # Generate coverage report
 ```
 
-## Performance
-
-### Incremental Updates
-
-The watch mode uses incremental updates for optimal performance:
-
-- Only processes changed files
-- Maintains document-to-node mappings
-- Debounces file system events
-- Efficient link resolution caching
-
-### Optimization Features
-
-- **Caching**: Link resolution and document processing
-- **Debouncing**: File system events to prevent excessive updates
-- **Streaming**: Async iterators for large repositories
-- **Memory efficient**: Lazy loading and cleanup
-
 ## Error Handling
-
-The library provides comprehensive error handling:
 
 - **DirectoryNotFoundError**: When target directory doesn't exist
 - **FileNotFoundError**: When referenced files are missing

@@ -300,31 +300,4 @@ export class GraphWatcher extends EventEmitter {
       consola.error("Failed to write graph file:", error);
     }
   }
-
-  /**
-   * Build ignore patterns for chokidar
-   */
-  private buildIgnorePatterns(filePath: string): boolean {
-    // Return true to ignore the file, false to watch it
-
-    // Check exclude patterns
-    if (this.options.excludes) {
-      for (const exclude of this.options.excludes) {
-        if (filePath.includes(exclude)) {
-          return true;
-        }
-      }
-    }
-
-    // Check hidden files
-    if (!this.options.includeHidden) {
-      const fileName = path.basename(filePath);
-      if (fileName.startsWith(".")) {
-        return true;
-      }
-    }
-
-    // Don't ignore this file - watch it
-    return false;
-  }
 }

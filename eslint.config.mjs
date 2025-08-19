@@ -19,7 +19,13 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
-    ignores: ["dist/**", "coverage/**", "node_modules/**", ".rollup.cache/**", "target/**"],
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "node_modules/**",
+      ".rollup.cache/**",
+      "target/**",
+    ],
   },
   {
     files: ["src/**/*.ts", "*.js", "*.mjs"],

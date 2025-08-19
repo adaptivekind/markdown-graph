@@ -120,7 +120,7 @@ describe("garden save functionality", () => {
 
     // Nodes should be empty objects
     for (const node of Object.values(savedContent.nodes)) {
-      expect(Object.keys(node as object)).toHaveLength(0);
+      expect(Object.keys(node as Record<string, unknown>)).toHaveLength(0);
     }
   });
 
