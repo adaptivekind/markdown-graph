@@ -119,7 +119,7 @@ const processHeadingNode = (
       return true; // Skip this node - we haven't found main heading yet
     }
   } else {
-    // This is an h1 heading
+    // This is a h1 heading
     state.currentHeadingDepth = H1_HEADING_DEPTH;
     state.foundMainHeading = true;
     return false; // Don't skip

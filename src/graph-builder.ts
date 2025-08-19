@@ -16,18 +16,9 @@ import type {
 /**
  * Builder class for constructing graph structures from markdown documents
  *
- * The GraphBuilder follows the builder pattern, allowing incremental construction
+ * The `GrahBuilder` follows the builder pattern, allowing incremental construction
  * of a graph by adding markdown documents one at a time. It handles the conversion
  * of markdown content into nodes and links in the graph structure.
- *
- * @example
- * ```typescript
- * const builder = new GraphBuilder();
- * builder.addDocument(document1)
- *        .addDocument(document2)
- *        .addDocument(document3);
- * const graph = builder.build();
- * ```
  */
 export class GraphBuilder {
   private graph: Graph = {
@@ -76,7 +67,7 @@ export class GraphBuilder {
     try {
       const allSections = parseMarkdownDocument(document);
 
-      // Filter sections if noSections is enabled (only keep depth 1 sections)
+      // Filter sections if `noSections` is enabled (only keep depth 1 sections)
       const sections = this.noSections
         ? allSections.filter((section) => section.depth === 1)
         : allSections;
@@ -101,7 +92,7 @@ export class GraphBuilder {
     sections: MarkdownSection[],
   ): void {
     if (this.justNodeNames) {
-      // In justNodeNames mode, only create empty nodes with just the key
+      // Only create empty nodes with just the key
       sections.forEach((section) => {
         const { id } = createNode(document, section);
         this.graph.nodes[id] = {};
@@ -123,7 +114,7 @@ export class GraphBuilder {
     sections: MarkdownSection[],
   ): void {
     if (this.justNodeNames) {
-      // In justNodeNames mode, skip creating any links
+      // skip creating any links
       return;
     }
 
@@ -157,7 +148,7 @@ export class GraphBuilder {
    * Build and return the current graph state
    *
    * Returns a deep copy of the current graph to prevent external mutations.
-   * The returned graph contains all nodes and links added through addDocument().
+   * The returned graph contains all nodes and links added.
    *
    * @returns A copy of the current graph structure
    */
