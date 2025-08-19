@@ -1,7 +1,7 @@
 import commonjs from "@rollup/plugin-commonjs";
-import { dts } from "rollup-plugin-dts";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
+import { dts } from "rollup-plugin-dts";
 
 const sharedWarningHandler = (warning, warn) => {
   // Suppress eval warning from gray-matter engines - it's safe in this context

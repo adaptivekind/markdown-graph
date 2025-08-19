@@ -22,8 +22,8 @@
     "markdown-graph": "./dist/cli.js"
   },
   "scripts": {
-    "eslint": "eslint src --ext .ts",
-    "eslint:fix": "eslint --fix src --ext .ts",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix .",
     "lint": "npm run prettier && npm run eslint && npm run knip",
     "lint:fix": "npm run prettier:fix && npm run eslint:fix",
     "prepare": "husky",

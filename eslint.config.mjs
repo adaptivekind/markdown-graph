@@ -19,6 +19,10 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
+    ignores: ["dist/**", "coverage/**", "node_modules/**", ".rollup.cache/**", "target/**"],
+  },
+  {
+    files: ["src/**/*.ts", "*.js", "*.mjs"],
     extends: compat.extends(
       "eslint:recommended",
       "plugin:import/recommended",
